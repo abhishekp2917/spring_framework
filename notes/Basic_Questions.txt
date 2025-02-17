@@ -846,4 +846,356 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is Spring Container and how it works ?
+
+>>  The Spring Container is the core of the Spring Framework, responsible for managing the lifecycle, configuration, and 
+    dependencies of beans.
+    
+    Essentially, it is an implementation of the Inversion of Control (IoC) design pattern, where the container takes 
+    control of creating and managing objects instead of the application code.
+
+    How It Works:
+        
+        (1) Configuration Loading:
+
+            - The container reads configuration metadata to understand how to create and wire beans.
+            
+            - Configuration can be provided using:
+                
+                (a) XML configuration files
+                (b) Java-based configuration (@Configuration and @Bean annotations)
+                (c) Component scanning with annotations like @Component, @Service, @Repository, and @Controller.
+        
+        (2) Bean Instantiation:
+
+            - The container instantiates beans as specified in the configuration.
+        
+            - By default, beans are singleton, meaning only one instance is created per Spring container.
+        
+            - Other scopes include prototype, request, session, and application.
+        
+        (3) Dependency Injection:
+
+            - After creating beans, the container injects dependencies as specified.
+            
+            - Types of Dependency Injection:
+                
+                (a) Constructor Injection: Dependencies are passed via the constructor.
+                (b) Setter Injection: Dependencies are set through public setter methods.
+                (c) Field Injection: Directly injecting dependencies into fields (not recommended due to reduced testability).
+        
+        (4) Lifecycle Management:
+
+            - The container manages the complete lifecycle of beans, including:
+                
+                (a) Initialization: Using @PostConstruct or an init-method of bean.
+                (b) Destruction: Using @PreDestroy or a destroy-method of bean.
+        
+        (5) Post-Processing:
+
+            - BeanPostProcessor and BeanFactoryPostProcessor are used for modifying bean properties or configurations 
+              before and after initialization.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of Spring Container ?
+
+>>  (1) BeanFactory: 
+
+        It is the basic container, providing fundamental dependency injection and bean lifecycle management.
+
+    (2) ApplicationContext: 
+    
+        It extends BeanFactory with additional enterprise-level features, making it the most commonly used container in 
+        Spring applications.
+
+________________________________________________________________________________________________________________________
+
+*   Explain BeanFactory Spring Container in detail.
+
+>>  BeanFactory is the simplest container in Spring.
+    
+    It provides basic dependency injection and bean lifecycle management.
+    
+    It lazily initializes beans, meaning beans are created only when requested.
+
+    When to Use:
+        
+        - When memory consumption is a concern.
+        
+        - In lightweight applications with minimal configuration.
+    
+    Example:
+        
+        - Using 'XmlBeanFactory' object (deprecated but useful for learning purposes):
+
+        beans.xml:
+
+            ```
+                <beans 
+                    xmlns="http://www.springframework.org/schema/beans"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                    <bean id="myBean" class="com.example.MyBean">
+                        <property name="message" value="Hello from BeanFactory!" />
+                    </bean>
+                </beans>
+            ```
+            
+        MyBean.java:
+
+            ```
+                public class MyBean {
+                    private String message;
+
+                    public void setMessage(String message) {
+                        this.message = message;
+                    }
+
+                    public void displayMessage() {
+                        System.out.println(message);
+                    }
+                }
+            ```
+        
+        MainApp.java:
+
+            ```
+                import org.springframework.beans.factory.BeanFactory;
+                import org.springframework.beans.factory.xml.XmlBeanFactory;
+                import org.springframework.core.io.ClassPathResource;
+
+                public class MainApp {
+                    public static void main(String[] args) {
+
+                        // Load configuration from XML file
+                        ClassPathResource resource = new ClassPathResource("beans.xml");
+
+                        BeanFactory factory = new XmlBeanFactory(resource);
+
+                        // Get the bean and call the method
+                        MyBean myBean = (MyBean) factory.getBean("myBean");
+                        myBean.displayMessage();
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain ApplicationContext Spring Container in detail.
+
+>>  ApplicationContext extends BeanFactory and provides more advanced features like:
+        
+        - Event propagation
+        - Declarative mechanisms for creating a bean
+        - Internationalization support
+        - AOP integration
+    
+    It eagerly initializes singleton beans (at startup).
+    
+    When to Use:
+        
+        - For enterprise-level applications.
+        - When advanced features like event handling and AOP are required.
+
+    Types of ApplicationContext:
+        
+        (1) ClassPathXmlApplicationContext:
+            
+            - Loads context from XML configuration file present in the classpath.
+
+        (2) FileSystemXmlApplicationContext:
+            
+            - Loads context from an XML configuration file present outside the classpath (e.g., in a shared folder or on a server).
+        
+        (3) AnnotationConfigApplicationContext:
+            
+            - Loads context from Java-based configuration using annotations.
+        
+        (4) WebApplicationContext:
+        
+            - Specialized for web applications, integrated with Spring MVC.
+
+    Example: 
+    
+        (1) ClassPathXmlApplicationContext:
+            
+            beans.xml:
+
+                ```
+                    <beans xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <bean id="myBean" class="com.example.MyBean">
+                            <property name="message" value="Hello from ApplicationContext!" />
+                        </bean>
+                    </beans>
+                ```
+                
+            MyBean.java:
+
+                ```
+                    public class MyBean {
+                        private String message;
+
+                        public void setMessage(String message) {
+                            this.message = message;
+                        }
+
+                        public void displayMessage() {
+                            System.out.println(message);
+                        }
+                    }
+                ```
+            
+            MainApp.java:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class MainApp {
+                        public static void main(String[] args) {
+
+                            // Load context from XML configuration in the classpath
+                            ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+                            // Get the bean and call the method
+                            MyBean myBean = (MyBean) context.getBean("myBean");
+                            myBean.displayMessage();
+                        }
+                    }
+                ```
+
+        (2) AnnotationConfigApplicationContext:
+
+            AppConfig.java:
+
+                ```        
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+
+                    @Configuration
+                    public class AppConfig {
+                        @Bean
+                        public MyBean myBean() {
+                            MyBean myBean = new MyBean();
+                            myBean.setMessage("Hello from AnnotationConfigApplicationContext!");
+                            return myBean;
+                        }
+                    }
+                ```
+            
+            MyBean.java:
+
+                ```
+                    public class MyBean {
+                        private String message;
+
+                        public void setMessage(String message) {
+                            this.message = message;
+                        }
+
+                        public void displayMessage() {
+                            System.out.println(message);
+                        }
+                    }
+                ```
+            
+            MainApp.java:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class MainApp {
+                        public static void main(String[] args) {
+
+                            // Load context using Java-based configuration
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+                            // Get the bean and call the method
+                            MyBean myBean = context.getBean(MyBean.class);
+                            myBean.displayMessage();
+                        }
+                    }
+                ```
+
+        (3) FileSystemXmlApplicationContext:
+
+            The configuration file is located in the config folder outside the classpath.
+
+            Directory Structure:
+
+                spring-example/
+                └── src/
+                    └── main/
+                        └── java/
+                        │   └── com/
+                        │       └── example/
+                        │           └──  MainApp.java
+                        │           └── MyBean.java
+                        │
+                        └── config/
+                            └── beans.xml
+
+
+            config/beans.xml:
+                        
+                ```
+                    <beans xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <!-- Bean definition for MyBean -->
+                        <bean id="myBean" class="com.example.MyBean">
+                            <property name="message" value="Hello from FileSystemXmlApplicationContext!" />
+                        </bean>
+                    </beans>
+                ```
+            
+            MyBean.java:
+
+                ```
+                    public class MyBean {
+                        private String message;
+
+                        public void setMessage(String message) {
+                            this.message = message;
+                        }
+
+                        public void displayMessage() {
+                            System.out.println(message);
+                        }
+                    }
+                ```
+
+            MainApp.java:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+                    public class MainApp {
+                        public static void main(String[] args) {
+
+                            // Load context using FileSystemXmlApplicationContext with relative path
+                            ApplicationContext context = new FileSystemXmlApplicationContext("config/beans.xml");
+
+                            // Get the bean from context and call the method
+                            MyBean myBean = (MyBean) context.getBean("myBean");
+                            myBean.displayMessage();
+                        }
+                    }
+                ```
+________________________________________________________________________________________________________________________
+
+*   Explain WebApplicationContext Spring Container in detail.
+
+>>  
+
 ________________________________________________________________________________________________________________________
