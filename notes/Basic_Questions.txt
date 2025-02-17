@@ -1,0 +1,849 @@
+*   What is Spring Framework ?
+
+>>  The Spring Framework is a powerful, open-source framework for building enterprise Java applications. 
+
+    It provides a comprehensive programming and configuration model, supporting various application architectures, 
+    including microservices, cloud-based applications, and traditional monolithic applications.
+
+________________________________________________________________________________________________________________________
+
+*   What are various modules under Spring Framework ?
+
+>>  The Spring Framework is modular, meaning you can use only the components you need. 
+
+    It consists of several core modules grouped into different categories:
+
+    (1) Core Container (Foundation of Spring):
+
+        (a) Spring Core:
+            
+            – Introduced in: Spring 1.0 
+            – Purpose: Provides Dependency Injection (DI) and Inversion of Control (IoC), the foundation of the Spring framework.  
+            – Use Case: Enables loosely coupled components, making applications more maintainable and testable.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Component
+                    public class Car {
+                        private Engine engine;
+
+                        @Autowired
+                        public Car(Engine engine) {
+                            this.engine = engine;
+                        }
+                    }
+                ```
+            
+        (b) Spring Beans:
+            
+            – Introduced in: Spring 1.0 
+            – Purpose: Manages Java beans and their lifecycle within the Spring container.  
+            – Use Case: Ensures proper instantiation and dependency resolution of beans.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </dependency>
+                ```
+            
+            – Example:
+
+                ```
+                    @Bean
+                    public DataSource dataSource() {
+                        return new HikariDataSource();
+                    }
+                ```
+
+        (c) Spring Context:
+        
+            – Introduced in: Spring 1.0  
+            – Purpose: Provides an advanced application context, supporting internationalization, event propagation, and resource loading.  
+            – Use Case: Enables event-driven programming within a Spring application.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                    MyBean bean = context.getBean(MyBean.class);
+                ```
+
+        (d) Spring Expression Language (SpEL):
+        
+            – Introduced in: Spring 3.0  
+            – Purpose: Used for querying and manipulating objects dynamically.  
+            – Use Case: Supports property access, mathematical operations, and method invocation inside configurations.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-expression</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    ExpressionParser parser = new SpelExpressionParser();
+                    Expression exp = parser.parseExpression("'Hello'.concat(' World')");
+                    String message = exp.getValue(String.class);
+                ```
+
+    (2) AOP (Aspect-Oriented Programming) and Instrumentation:
+
+        (a) Spring AOP:
+        
+            – Introduced in: Spring 2.0 
+            – Purpose: Enables cross-cutting concerns like logging, security, and transactions using aspects.  
+            – Use Case: Helps in separating business logic from system-level concerns like logging and security.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-aop</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Aspect
+                    @Component
+                    public class LoggingAspect {
+                        @Before("execution(* com.example.service.*.*(..))")
+                        public void logBefore(JoinPoint joinPoint) {
+                            System.out.println("Executing: " + joinPoint.getSignature());
+                        }
+                    }
+                ```
+            
+        (b) Spring Aspects:
+        
+            – Introduced in: Spring 2.0  
+            – Purpose: Integration with AspectJ for advanced AOP features.  
+            – Use Case: Provides a more powerful AOP model with additional functionality like AspectJ annotations.  
+            – Dependency:  
+                
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-aspects</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                ```
+
+        (c) Spring Instrumentation:
+        
+            – Introduced in: Spring 2.5 
+            – Purpose: Provides instrumentation and classloading support.  
+            – Use Case: Enables dynamic class loading and enhancement, useful for tools like profilers and agents.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-instrument</artifactId>
+                    </dependency>
+                ``` 
+            – Example: 
+
+                ```
+                ```
+
+    (3) Data Access & Integration:
+
+        (a) Spring JDBC:
+            
+            – Introduced in: Spring 1.0  
+            – Purpose: Simplifies database operations with JDBC templates, reducing boilerplate code.  
+            – Use Case: Ideal for interacting with relational databases in a straightforward way without the overhead of ORM frameworks.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jdbc</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+                    String sql = "SELECT name FROM users WHERE id = ?";
+                    String name = jdbcTemplate.queryForObject(sql, String.class, 1);
+                ```
+
+        (b) Spring ORM:
+        
+            – Introduced in: Spring 1.0 
+            – Purpose: Supports JPA, Hibernate, JDO, iBatis for Object-Relational Mapping (ORM) integration.  
+            – Use Case: Helps in simplifying ORM-based data access using frameworks like Hibernate.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-orm</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Entity
+                    @Table(name = "users")
+                    public class User {
+                        @Id
+                        private Long id;
+                        private String name;
+                    }
+
+                    @PersistenceContext
+                    private EntityManager entityManager;
+                ```
+             
+        (c) Spring Transactions:
+            
+            – Introduced in: Spring 1.0  
+            – Purpose: Manages declarative and programmatic transactions.  
+            – Use Case: Ensures consistency and rollback for database operations.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-tx</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Transactional
+                    public void transferMoney(Account from, Account to, double amount) {
+                        from.withdraw(amount);
+                        to.deposit(amount);
+                    }
+                ```
+
+        (d) Spring Data:
+            
+            – Introduced in: Spring 2.5  
+            – Purpose: Simplifies database interactions by supporting JPA, MongoDB, Redis, Elasticsearch, etc.  
+            – Use Case: Great for reducing boilerplate code in data access layers.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.data</groupId>
+                        <artifactId>spring-data-jpa</artifactId>
+                    </dependency>
+                ```
+              
+            – Example:
+
+                ```
+                    public interface UserRepository extends JpaRepository<User, Long> {
+                        List<User> findByName(String name);
+                    }
+                ```
+
+        (e) Spring Batch:
+        
+            – Introduced in: Spring Batch 1.0  
+            – Purpose: Handles batch processing for large datasets, allowing task scheduling and job control.  
+            – Use Case: Useful for handling large-scale data processing operations.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.batch</groupId>
+                        <artifactId>spring-batch-core</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Configuration
+                    @EnableBatchProcessing
+                    public class BatchConfig {
+                        @Bean
+                        public Job job(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+                            return jobBuilderFactory.get("job").start(step1()).build();
+                        }
+                        
+                        @Bean
+                        public Step step1() {
+                            return stepBuilderFactory.get("step1").tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED).build();
+                        }
+                    }
+                ```    
+
+        (f) Spring Integration:
+                    
+            – Introduced in: Spring Integration 1.0  
+            – Purpose: Facilitates message-based communication between applications, integrating them using channels and transformers.  
+            – Use Case: Useful in integrating enterprise systems, message-driven applications, or complex workflows.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.integration</groupId>
+                        <artifactId>spring-integration-core</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @EnableIntegration
+                    @Configuration
+                    public class IntegrationConfig {
+                        @Bean
+                        public IntegrationFlow integrationFlow() {
+                            return IntegrationFlows.from("inputChannel")
+                                    .transform(String.class, String::toUpperCase)
+                                    .handle(System.out::println)
+                                    .get();
+                        }
+                    }
+                ```
+
+    (4) Web & Remote Access:
+
+        (a) Spring MVC:
+            
+            – Introduced in: Spring 1.0  
+            – Purpose: Implements Model-View-Controller (MVC) design pattern for building web applications.  
+            – Use Case: Ideal for building traditional web applications with dynamic content generation.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-webmvc</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Controller
+                    public class UserController {
+                        @RequestMapping("/users/{id}")
+                        public String getUser(@PathVariable("id") Long id, Model model) {
+                            User user = userService.findById(id);
+                            model.addAttribute("user", user);
+                            return "userProfile";
+                        }
+                    }
+                ```
+
+        (b) Spring WebFlux:
+        
+            – Introduced in: Spring 5.0  
+            – Purpose: Provides a reactive programming model using Project Reactor, enabling asynchronous and non-blocking processing.  
+            – Use Case: Suitable for building reactive applications, especially for real-time data streaming.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-webflux</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @RestController
+                    public class ReactiveController {
+                        @GetMapping("/reactive")
+                        public Mono<String> getReactiveData() {
+                            return Mono.just("Hello Reactive World");
+                        }
+                    }
+                ```
+
+        (c) Spring WebSockets:
+            
+            – Introduced in: Spring 4.0  
+            – Purpose: Enables real-time, bidirectional communication between the server and client.  
+            – Use Case: Useful for chat applications, live notifications, or any real-time communication.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-websocket</artifactId>
+                    </dependency>
+                ```
+                
+            – Example:
+
+                ```
+                    @EnableWebSocket
+                    @Configuration
+                    public class WebSocketConfig implements WebSocketConfigurer {
+                        @Override
+                        public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+                            registry.addHandler(new ChatWebSocketHandler(), "/chat");
+                        }
+                    }
+                ```
+
+        (d) Spring RSocket:
+            
+            – Introduced in: Spring 5.2  
+            – Purpose: Supports bi-directional communication over the RSocket protocol, enabling advanced messaging features.  
+            – Use Case: Ideal for building highly interactive, low-latency, and resilient communication systems.  
+            – Dependency: 
+     
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-messaging</artifactId>
+                    </dependency>
+                ```
+            – Example:
+
+                ```
+                    @EnableRSocket
+                    @Configuration
+                    public class RSocketConfig {
+                        @Bean
+                        public RSocketRequester rSocketRequester(RSocketStrategies strategies, TcpClient tcpClient) {
+                            return RSocketRequester.builder()
+                                .rsocketStrategies(strategies)
+                                .transport(tcpClient.connectNow());
+                        }
+                    }
+                ```
+
+        (e) Spring Remoting:
+            
+            – Introduced in: Spring 1.0  
+            – Purpose: Enables remote method invocation (RMI, Hessian, HTTP Invoker) between Java applications.  
+            – Use Case: Facilitates communication between distributed systems or services.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-remoting</artifactId>
+                    </dependency>
+                ```
+            
+            – Example:
+
+                ```
+                ```
+
+    (5) Security & Authentication:
+
+        (a) Spring Security:
+            
+            – Introduced in: Spring Security 2.0  
+            – Purpose: Provides comprehensive security services for authentication, authorization, and protection against common attacks (e.g., CSRF, XSS).  
+            – Use Case: Protects applications by ensuring proper user authentication and access control, both for web and REST APIs.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.security</groupId>
+                        <artifactId>spring-security-config</artifactId>
+                    </dependency>
+                ```
+            – Example:
+
+                ```
+                    @Configuration
+                    @EnableWebSecurity
+                    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+                        @Override
+                        protected void configure(HttpSecurity http) throws Exception {
+                            http.authorizeRequests()
+                                .antMatchers("/admin/**").hasRole("ADMIN")
+                                .antMatchers("/user/**").authenticated()
+                                .and().formLogin();
+                        }
+                    }
+                ```
+
+        (b) Spring OAuth2:
+            
+            – Introduced in: Spring Security OAuth2 1.0  
+            – Purpose: Adds OAuth2 authentication and resource server capabilities, supporting authorization codes, implicit flows, and client credentials.  
+            – Use Case: Facilitates implementing OAuth2-based login (e.g., Google or Facebook login), as well as securing APIs.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.security.oauth</groupId>
+                        <artifactId>spring-security-oauth2</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @EnableAuthorizationServer
+                    @Configuration
+                    public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+                        @Override
+                        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+                            clients.inMemory()
+                                .withClient("client")
+                                .secret("{noop}secret")
+                                .authorizedGrantTypes("authorization_code")
+                                .redirectUris("http://localhost:8080/callback");
+                        }
+                    }
+                ```            
+
+        (c) Spring Session:
+            
+            – Introduced in: Spring Session 1.0  
+            – Purpose: Manages user sessions across distributed systems, enabling session sharing between applications or services.  
+            – Use Case: Ensures session consistency in microservices, enabling single sign-on (SSO) or session persistence across nodes.  
+            – Dependency: 
+
+                 ```
+                    <dependency>
+                        <groupId>org.springframework.session</groupId>
+                        <artifactId>spring-session-core</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Configuration
+                    @EnableRedisHttpSession
+                    public class SessionConfig {
+                    }
+                ```
+    
+    (6) Cloud & Microservices:
+
+        (a) Spring Boot:
+            
+            – Introduced in: Spring Boot 1.0  
+            – Purpose: Simplifies Spring development with auto-configuration, embedded servers, and an opinionated approach to application setup.  
+            – Use Case: Ideal for quickly setting up stand-alone, production-ready Spring applications.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @SpringBootApplication
+                    public class Application {
+                        public static void main(String[] args) {
+                            SpringApplication.run(Application.class, args);
+                        }
+                    }
+                ```
+
+        (b) Spring Cloud:
+
+            – Introduced in: Spring Cloud 1.0  
+            – Purpose: Provides tools for building cloud-native applications, offering solutions for service discovery (Eureka), centralized configuration (Config Server), API gateway (Zuul), and more.  
+            – Use Case: Perfect for developing microservices-based architectures with components like service discovery, distributed tracing, and fault tolerance.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-starter-eureka-client</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @EnableDiscoveryClient
+                    @SpringBootApplication
+                    public class Application {
+                        public static void main(String[] args) {
+                            SpringApplication.run(Application.class, args);
+                        }
+                    }
+                ```
+
+        (c) Spring Cloud Stream:
+            
+            – Introduced in: Spring Cloud Stream 1.0  
+            – Purpose: Supports event-driven microservices and integration with messaging brokers like Kafka and RabbitMQ.  
+            – Use Case: Useful for developing microservices that communicate via events or messages, such as with Kafka or RabbitMQ.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+                    </dependency>
+                ```
+            – Example:
+
+                ```
+                    @EnableBinding(Sink.class)
+                    public class MessageListener {
+                        @StreamListener(Sink.INPUT)
+                        public void handleMessage(String message) {
+                            System.out.println("Received: " + message);
+                        }
+                    }
+                ```
+
+        (d) Spring Cloud Data Flow:
+            
+            – Introduced in: Spring Cloud Data Flow 1.0  
+            – Purpose: Manages streaming and batch processing workloads, enabling microservice-based pipelines.  
+            – Use Case: Useful for handling large-scale data flows and processing jobs in real-time or batch.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-dataflow-server</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @EnableBatchProcessing
+                    @Configuration
+                    public class DataFlowConfig {
+                        @Bean
+                        public Job job(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+                            return jobBuilderFactory.get("dataFlowJob").start(step1()).build();
+                        }
+                        
+                        @Bean
+                        public Step step1() {
+                            return stepBuilderFactory.get("step1").tasklet((contribution, chunkContext) -> RepeatStatus.FINISHED).build();
+                        }
+                    }
+                ```
+
+    (7) Messaging & Event-Driven Architecture:
+        
+        (a) Spring JMS:
+
+            – Introduced in: Spring JMS 1.0  
+            – Purpose: Provides integration with Java Message Service (JMS) for sending and receiving messages in a distributed environment.  
+            – Use Case: Used for asynchronous communication between microservices or between systems.  
+            – Dependency: 
+                
+                ```
+                    <dependency>
+                        <groupId>org.springframework.jms</groupId>
+                        <artifactId>spring-jms</artifactId>
+                    </dependency>
+                ``` 
+
+            – Example:
+
+                ```
+                    @JmsListener(destination = "myQueue")
+                    public void receiveMessage(String message) {
+                        System.out.println("Received: " + message);
+                    }
+                ```
+
+        (b) Spring Kafka:
+            
+            – Introduced in: Spring for Apache Kafka 1.0  
+            – Purpose: Provides integration with Apache Kafka for stream processing, message queuing, and event-driven architecture.  
+            – Use Case: Ideal for building distributed, event-driven systems where high-throughput message handling is needed.  
+            – Dependency: 
+            
+                ```
+                    <dependency>
+                        <groupId>org.springframework.kafka</groupId>
+                        <artifactId>spring-kafka</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @KafkaListener(topics = "myTopic", groupId = "myGroup")
+                    public void listen(String message) {
+                        System.out.println("Received: " + message);
+                    }
+                ```
+
+        (c) Spring AMQP:
+            
+            – Introduced in: Spring AMQP 1.0  
+            – Purpose: Provides integration with RabbitMQ, supporting messaging, queuing, and routing in a microservices or event-driven system.  
+            – Use Case: Suitable for building systems that require guaranteed message delivery, such as in financial transactions or order processing.  
+            – Dependency: 
+            
+                ```
+                    <dependency>
+                        <groupId>org.springframework.amqp</groupId>
+                        <artifactId>spring-amqp</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @RabbitListener(queues = "myQueue")
+                    public void receiveMessage(String message) {
+                        System.out.println("Received: " + message);
+                    }
+                ```
+
+        (d) Spring Events:
+            
+            – Introduced in: Spring Framework 4.2  
+            – Purpose: Provides support for application-level events, allowing components to communicate asynchronously without tight coupling.  
+            – Use Case: Useful for triggering actions in response to changes or events within the system (e.g., user registration, system failures).  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @Component
+                    public class UserEventListener {
+                        @EventListener
+                        public void handleUserRegisteredEvent(UserRegisteredEvent event) {
+                            System.out.println("User registered: " + event.getUser());
+                        }
+                    }
+                ```
+
+    (8) Testing & DevOps:
+        
+        (a) Spring Test:
+            
+            – Introduced in: Spring Framework 2.5  
+            – Purpose: Provides comprehensive testing support for Spring applications, including unit tests, integration tests, and mock objects.  
+            – Use Case: Ideal for testing Spring beans, REST controllers, and database interactions in isolation or integration.  
+            – Dependency: 
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-test</artifactId>
+                        <scope>test</scope>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```
+                    @RunWith(SpringRunner.class)
+                    @WebMvcTest(OrderController.class)
+                    public class OrderControllerTest {
+                        @Autowired
+                        private MockMvc mockMvc;
+
+                        @Test
+                        public void testGetOrder() throws Exception {
+                            mockMvc.perform(get("/orders/1"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1));
+                        }
+                    }
+                ```
+
+        (b) Spring Boot Actuator:
+            
+            – Introduced in: Spring Boot 1.0  
+            – Purpose: Exposes operational information such as health, metrics, and application status via REST endpoints.  
+            – Use Case: Ideal for monitoring microservices, tracking application health, and integrating with observability tools like Prometheus and Grafana.  
+            – Dependency: 
+
+                 ```
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-actuator</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                Access the health endpoint: `http://localhost:8080/actuator/health`
+
+                ```yaml
+                    management:
+                    endpoints:
+                        web:
+                        exposure:
+                            include: health, info, metrics
+                ```
+
+        (c) Spring Cloud Config:
+
+            – Introduced in: Spring Cloud Config 1.0  
+            – Purpose: Manages externalized configuration in distributed systems, supporting centralized configuration across multiple environments.  
+            – Use Case: Suitable for microservices architectures where configuration consistency and dynamic refresh are required.  
+            – Dependency:
+
+                ```
+                    <dependency>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-config-server</artifactId>
+                    </dependency>
+                ```
+
+            – Example:
+
+                ```yaml
+                    spring:
+                    cloud:
+                        config:
+                        server:
+                            git:
+                            uri: https://github.com/example/config-repo
+                ```
+
+________________________________________________________________________________________________________________________
+
+________________________________________________________________________________________________________________________
