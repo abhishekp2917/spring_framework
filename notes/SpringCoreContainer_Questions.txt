@@ -1,0 +1,168 @@
+*   What can be achieved by alone using spring-core module ?
+
+>>  The spring-core module can be used for core utilities like reflection, assertions, and resource handling but 
+    no bean management.
+
+    It doesn't support Dependency Injection (DI) and Inversion of Control (IOC).
+
+    It is being used by other modules like spring-beans and spring-context which support Dependency Injection (DI).
+
+    Example:
+
+        Person.class:
+            
+            ```
+                class Person {
+                    private String name = "John Doe";
+                }
+            ```
+
+        Main.class:
+
+            ```
+                import org.springframework.util.ReflectionUtils;
+                import org.springframework.util.Assert;
+                import java.lang.reflect.Field;
+
+                public class Main {
+                    public static void main(String[] args) {
+
+                        Person person = new Person();
+
+                        // Reflection Utility
+                        Field field = ReflectionUtils.findField(Person.class, "name");
+                        ReflectionUtils.makeAccessible(field);
+                        String name = (String) ReflectionUtils.getField(field, person);
+                        System.out.println("Name via Reflection: " + name);
+
+                        // Assertion Utility
+                        Assert.notNull(name, "Name should not be null");
+                        System.out.println("Assertion passed: Name is not null");
+                    }
+                }
+            ```
+________________________________________________________________________________________________________________________
+
+*   What can be achieved by alone using spring-beans module ?
+
+>>  The spring-beans module is used for basic Dependency Injection (DI) and Bean lifecycle management using BeanFactory 
+    with XML configuration but no annotations based cofiguration.
+
+    Example:
+
+        beans.xml:
+
+            ```
+                <beans 
+                    xmlns="http://www.springframework.org/schema/beans"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd">
+                    
+                    <bean id="person" class="Person">
+                        <property name="name" value="Alice"/>
+                    </bean>
+                </beans>
+            ```
+
+        Person.class:
+
+            ```
+                class Person {
+                    private String name;
+
+                    public void setName(String name) {
+                        this.name = name;
+                    }
+
+                    public void printName() {
+                        System.out.println("Person's Name: " + name);
+                    }
+                }
+            ```
+
+        Main.class:
+
+            ```
+                import org.springframework.beans.factory.BeanFactory;
+                import org.springframework.beans.factory.xml.XmlBeanFactory;
+                import org.springframework.core.io.ClassPathResource;
+
+                public class Main {
+                    public static void main(String[] args) {
+
+                        // Load bean definitions from XML
+                        BeanFactory factory = new XmlBeanFactory(new ClassPathResource("beans.xml"));
+                        
+                        // Get the bean and use it
+                        Person person = (Person) factory.getBean("person");
+                        person.printName(); 
+                    }
+                }
+            ```
+________________________________________________________________________________________________________________________
+
+*   What can be achieved by alone using spring-context module ?
+
+>>  The spring-context module provides full-fledged Dependency Injection with ApplicationContext, which extends 
+    BeanFactory and adds advanced features.
+    
+    It also supports annotation-based Dependency Injection (DI) (@Configuration, @Component, @Autowired) which doesn't 
+    require XML configuration. 
+
+    In most real-world Spring applications, you will use spring-context, which includes everything from spring-beans and 
+    spring-core.
+
+    Example:
+
+        Configuration class:
+
+            ```
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Bean;
+
+                @Configuration
+                class AppConfig {
+
+                    @Bean
+                    public Person person() {
+                        return new Person("Bob");
+                    }
+                }
+            ```
+
+        Person.class:
+
+            ```
+                class Person {
+                    private String name;
+
+                    public Person(String name) {
+                        this.name = name;
+                    }
+
+                    public void printName() {
+                        System.out.println("Person's Name: " + name);
+                    }
+                }
+            ```
+
+        Main.class:
+
+            ```
+                import org.springframework.context.ApplicationContext;
+                import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                public class Main {
+                    public static void main(String[] args) {
+
+                        // Create ApplicationContext
+                        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                        
+                        // Retrieve and use the bean
+                        Person person = context.getBean(Person.class);
+                        person.printName(); 
+                    }
+                }
+            ```
+________________________________________________________________________________________________________________________
