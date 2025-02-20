@@ -1,0 +1,12 @@
+*   What are various types of Dependency Injection in Spring ?
+
+>>  Spring supports three types of Dependency Injection (DI):
+
+    (1) Constructor Injection: Dependencies are provided through the class constructor.
+
+    (2) Setter Injection: Dependencies are injected through setter methods.
+
+    (3) Field Injection: Dependencies are injected directly into fields using @Autowired.
+
+________________________________________________________________________________________________________________________
+

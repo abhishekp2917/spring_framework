@@ -1,0 +1,182 @@
+*   What are various data types of dependencies ?
+
+>>  In Spring, dependencies can be classified based on the data type they represent:
+            
+    (1) Primitive Data Types:
+
+        - Includes basic data types like int, float, double, boolean, char, String, etc.
+        
+        - Injected using value attribute in XML or @Value annotation.
+    
+        - Example:
+
+            Employee.class
+                
+                ```
+                    @Component
+                    public class Employee {
+                        private String name;
+                        private int age;
+
+                        // Constructor Injection
+                        public Employee(String name, int age) {
+                            this.name = name;
+                            this.age = age;
+                        }
+                    }
+                ```
+
+            XML Configuration:
+
+                ```
+                    <bean id="employee" class="com.example.Employee">
+                        <constructor-arg value="John Doe"/>
+                        <constructor-arg value="30"/>
+                    </bean>
+                ```
+
+    (2) Collection Types:
+        
+        - Includes List, Set, Map, and Properties.
+        
+        - Used to inject multiple values or bean references.
+        
+        - Example:
+
+            Company.class
+
+                ```
+                    @Component
+                    public class Company {
+                        private List<String> departments;
+
+                        // Setter Injection
+                        public void setDepartments(List<String> departments) {
+                            this.departments = departments;
+                        }
+                    }
+                ```
+                
+            XML Configuration:
+
+                ```
+                    <bean id="company" class="com.example.Company">
+                        <property name="departments">
+                            <list>
+                                <value>HR</value>
+                                <value>IT</value>
+                                <value>Finance</value>
+                            </list>
+                        </property>
+                    </bean>
+                ```
+
+    (3) Object References:
+
+        - Injecting one bean into another using references.
+    
+        - Ensures loose coupling and reuse of beans.
+
+        - Example:
+
+            Car.class
+
+                ```
+                    @Component
+                    public class Car {
+                        private Engine engine;
+
+                        // Constructor Injection
+                        public Car(Engine engine) {
+                            this.engine = engine;
+                        }
+                    }
+                ```
+
+            XML Configuration:
+
+                ```
+                    <bean id="engine" class="com.example.Engine"/>
+
+                    <bean id="car" class="com.example.Car">
+                        <constructor-arg ref="engine"/>
+                    </bean>
+                ```
+
+    (4) Custom Data Types:
+
+        - User-defined classes or enums can also be injected.
+        
+        - Useful for complex objects with multiple attributes.
+        
+        - Example:
+
+            Address.class
+
+                ``` 
+                    @Component
+                    public class Address {
+                        private String street;
+                        private String city;
+
+                        // Constructor Injection
+                        public Address(String street, String city) {
+                            this.street = street;
+                            this.city = city;
+                        }
+                    }
+                ```
+
+            XML Configuration:
+
+                ```
+                    <bean id="address" class="com.example.Address">
+                        <constructor-arg value="123 Main St"/>
+                        <constructor-arg value="New York"/>
+                    </bean>
+                ```
+
+    (5) Null Values:
+            
+        - Injecting null when no value is desired.
+        
+        - Useful for optional dependencies.
+
+            Example:
+
+                ```
+                    <bean id="employee" class="com.example.Employee">
+                        <property name="name">
+                            <null/>
+                        </property>
+                    </bean>
+                ```
+
+    (6) External Resources:
+        
+        - Injecting values from property files, environment variables, or system properties.
+        
+        - Done using @Value or <context:property-placeholder />.
+
+        - Example:
+
+            application.properties:
+
+                ```
+                    app.url=http://example.com
+                ```
+
+            Java Code:
+
+                ```
+                    @Value("${app.url}")
+                    private String appUrl;
+                ```
+
+            Configuration in XML:
+
+                ```
+                    <context:property-placeholder location="classpath:application.properties"/>
+                ```
+
+________________________________________________________________________________________________________________________
