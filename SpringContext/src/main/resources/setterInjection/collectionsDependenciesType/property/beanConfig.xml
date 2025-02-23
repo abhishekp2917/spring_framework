@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean named "computer1" of class `Computer`.
+        - The `id` property is set using the `p` namespace (p:id="1").
+        - The `properties` property is a collection of key-value pairs (Properties).
+        - The `<props>` element defines a Java `Properties` object.
+        - Each `<prop key="...">...</prop>` represents an entry in the Properties map.
+        - "computer1" has:
+          - `name` → "Asus NoteBook"
+          - `processor` → "Intel 10th Gen"
+          - `ramInGB` → "4" (Assumed as String, unless converted explicitly)
+    -->
+    <bean name="computer1" class="org.example.setterInjection.collectionsDependenciesType.property.beans.Computer"
+          p:id="1">
+        <property name="properties">
+            <props>
+                <prop key="name">Asus NoteBook</prop>
+                <prop key="processor">Intel 10th Gen</prop>
+                <prop key="ramInGB">4</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--
+        Defining a second bean named "computer2" of class `Computer`.
+        - The `id` property is set using the `p` namespace (p:id="2").
+        - The `properties` property is again a Java `Properties` object.
+        - The `<props>` element holds key-value pairs, defining:
+          - `name` → "Asus NoteBook"
+          - `storageInGB` → "512"
+          - `processorClockSpeed` → "2.7"
+    -->
+    <bean name="computer2" class="org.example.setterInjection.collectionsDependenciesType.property.beans.Computer"
+          p:id="2">
+        <property name="properties">
+            <props>
+                <prop key="name">Asus NoteBook</prop>
+                <prop key="storageInGB">512</prop>
+                <prop key="processorClockSpeed">2.7</prop>
+            </props>
+        </property>
+    </bean>
+</beans>

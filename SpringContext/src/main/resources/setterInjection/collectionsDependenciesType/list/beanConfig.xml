@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean named "hospital1" of class `Hospital`.
+        This bean represents a hospital entity with the following properties:
+        - id: 1 (A unique identifier for the hospital)
+        - name: "Sanjeevani Hospital"
+        - departments: A list of department names, representing different medical departments available in the hospital.
+
+        - The <property> elements define values for the corresponding fields in the `Hospital` class.
+        - The <list> element is used to inject a collection of String values representing the hospital's departments.
+        - The attribute `value-type="java.lang.String"` explicitly specifies that the list contains String values.
+    -->
+    <bean name="hospital1" class="org.example.setterInjection.collectionsDependenciesType.list.beans.Hospital">
+        <property name="id">
+            <value>1</value>
+        </property>
+        <property name="name">
+            <value>Sanjeevani Hospital</value>
+        </property>
+        <property name="departments">
+            <list value-type="java.lang.String">
+                <value>Cardiology</value>
+                <value>Neurology</value>
+                <value>Orthopedics</value>
+                <value>Pediatrics</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+        Defining another bean named "hospital2" of class `Hospital`.
+        This bean represents another hospital entity with:
+        - id: 1 (A unique identifier for the hospital)
+        - name: "Smimer Hospital"
+        - departments: A smaller list of medical departments compared to hospital1.
+
+        - This bean uses the `p` namespace to define simple property values in a more compact form.
+        - The `p:id="1"` and `p:name="Smimer Hospital"` attributes set the `id` and `name` properties directly.
+        - The <property> element is still used for the list of departments, as collections cannot be set directly using the `p` namespace.
+        - The <list> element includes only two departments: Orthopedics and Pediatrics.
+    -->
+    <bean name="hospital2" class="org.example.setterInjection.collectionsDependenciesType.list.beans.Hospital"
+          p:id="1"
+          p:name="Smimer Hospital"
+    >
+        <property name="departments">
+            <list value-type="java.lang.String">
+                <value>Orthopedics</value>
+                <value>Pediatrics</value>
+            </list>
+        </property>
+    </bean>
+</beans>

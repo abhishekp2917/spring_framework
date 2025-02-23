@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean named "emp1" of class Employee.
+        This bean is configured using explicit <property> elements with nested <value> elements.
+        Each property is assigned a value using separate XML tags.
+    -->
+    <bean name="emp1" class="org.example.setterInjection.primitiveDependenciesType.beans.Employee">
+        <property name="id">
+            <value>1</value>
+        </property>
+        <property name="firstName">
+            <value>Abhishek</value>
+        </property>
+        <property name="lastName">
+            <value>Pandey</value>
+        </property>
+        <property name="age">
+            <value>23</value>
+        </property>
+    </bean>
+
+    <!--
+        Defining a bean named "emp2" of class Employee.
+        This bean is configured using <property> elements with `value` attributes,
+        making it more concise than emp1's explicit <value> elements.
+    -->
+    <bean name="emp2" class="org.example.setterInjection.primitiveDependenciesType.beans.Employee">
+        <property name="id" value="2"/>
+        <property name="firstName" value="Goku"/>
+        <property name="lastName" value="Singh"/>
+        <property name="age" value="30"/>
+    </bean>
+
+    <!--
+        Defining a bean named "emp3" of class Employee.
+        This bean is configured using the `p` namespace to set property values as attributes.
+        This is the most concise way to define properties.
+    -->
+    <bean name="emp3" class="org.example.setterInjection.primitiveDependenciesType.beans.Employee"
+          p:id="3"
+          p:firstName="Hritik"
+          p:lastName="Roshan"
+          p:age="42" />
+</beans>

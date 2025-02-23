@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean named "dealer1" of class `CarDealer`.
+        - The `id` property is explicitly set using nested `<property>` tags.
+        - The `name` property is also set similarly.
+        - The `models` property is a `Set<String>` containing car brands.
+        - A `set` collection ensures uniqueness (no duplicate elements).
+        - "dealer1" has:
+          - `id` → 1
+          - `name` → "Shivani Automobiles"
+          - `models` → {"Honda", "Toyota", "Tata"}
+    -->
+    <bean name="dealer1" class="org.example.setterInjection.collectionsDependenciesType.set.beans.CarDealer">
+        <property name="id">
+            <value>1</value>
+        </property>
+        <property name="name">
+            <value>Shivani Automobiles</value>
+        </property>
+        <property name="models">
+            <set value-type="java.lang.String">
+                <value>Honda</value>
+                <value>Toyota</value>
+                <value>Tata</value>
+            </set>
+        </property>
+    </bean>
+
+    <!--
+        Defining a second bean named "dealer2" of class `CarDealer`.
+        - Uses `p` namespace for shorthand property assignment (p:id="2", p:name="Shiva Automobiles").
+        - The `models` property is injected using a `<set>`, ensuring uniqueness.
+        - "dealer2" has:
+          - `id` → 2
+          - `name` → "Shiva Automobiles"
+          - `models` → {"Tesla", "Maruti Suzuki"}
+    -->
+    <bean name="dealer2" class="org.example.setterInjection.collectionsDependenciesType.set.beans.CarDealer"
+          p:id="2"
+          p:name="Shiva Automobiles">
+        <property name="models">
+            <set value-type="java.lang.String">
+                <value>Tesla</value>
+                <value>Maruti Suzuki</value>
+            </set>
+        </property>
+    </bean>
+</beans>

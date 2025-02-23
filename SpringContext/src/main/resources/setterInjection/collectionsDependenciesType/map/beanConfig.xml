@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean named "customer1" of class `Customer`.
+        - The `id` property is set using the `p` namespace (p:id="1").
+        - The `invoices` property is a Map<String, Double> where:
+          - Keys are invoice numbers (as Strings).
+          - Values are invoice amounts (as Doubles).
+        - The `orders` property is a Map<String, List<String>> where:
+          - Keys are invoice numbers.
+          - Values are lists of purchased products for the corresponding invoice.
+    -->
+    <bean name="customer1" class="org.example.setterInjection.collectionsDependenciesType.map.beans.Customer"
+          p:id="1">
+        <property name="invoices">
+            <map value-type="java.lang.Double">
+                <entry>
+                    <key>
+                        <value>202401021011</value>
+                    </key>
+                    <value>2075.5</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>202402021013</value>
+                    </key>
+                    <value>5011.5</value>
+                </entry>
+            </map>
+        </property>
+        <property name="orders">
+            <map value-type="java.util.List">
+                <entry>
+                    <key>
+                        <value>202401021011</value>
+                    </key>
+                    <list>
+                        <value>Vatika Shampoo</value>
+                        <value>White Bread</value>
+                        <value>Hair Dryer</value>
+                    </list>
+                </entry>
+                <entry>
+                    <key>
+                        <value>202402021013</value>
+                    </key>
+                    <list>
+                        <value>Philips Razor</value>
+                        <value>Frying Pan</value>
+                        <value>Blender</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!--
+        Defining a second bean named "customer2" of class `Customer`.
+        - The `id` property is set using the `p` namespace (p:id="2").
+        - The `invoices` property is again a Map<String, Double>, but this time using compact `<entry key="..." value="..."/>` syntax.
+        - The `orders` property is a Map<String, List<String>> following a similar structure to customer1 but with different products and invoices.
+    -->
+    <bean name="customer2" class="org.example.setterInjection.collectionsDependenciesType.map.beans.Customer"
+          p:id="2">
+        <property name="invoices">
+            <map value-type="java.lang.Double">
+                <entry key="202401022011" value="300.0" />
+                <entry key="202401022521" value="990.0" />
+            </map>
+        </property>
+        <property name="orders">
+            <map value-type="java.util.List">
+                <entry key="202401022011">
+                    <list>
+                        <value>Vatika Shampoo</value>
+                        <value>Hair Dryer</value>
+                    </list>
+                </entry>
+                <entry key="202401022521">
+                    <list>
+                        <value>Kishan Jam</value>
+                        <value>Frying Pan</value>
+                    </list>
+                </entry>
+            </map>
+        </property>
+    </bean>
+</beans>

@@ -10,3 +10,184 @@
 
 ________________________________________________________________________________________________________________________
 
+*   Explain Setter Injection in detail.
+
+>>  Setter Injection is a type of Dependency Injection where Spring injects dependencies into a bean using setter methods.
+
+    The Spring container creates the bean first using the default (no-arg) constructor and then it calls setter methods 
+    to inject dependencies.
+
+    (1) XML-Based Setter Injection:
+
+        - Beans and dependencies are defined in an XML configuration file.
+        
+        - Uses <property> tag inside a <bean> definition to inject values or references.
+
+        - Dependency class must have a public setter method for Spring to call.
+        
+        - Requires loading Spring's application context via ClassPathXmlApplicationContext.
+        
+        - If a dependency is a class, it is referenced using ref="beanId", and if it’s a primitive type, it is assigned 
+          using value="someValue".
+
+    (2) Annotation-Based Setter Injection:
+
+        - Uses @Autowired annotation to inject dependencies into setter methods.
+        
+        - The dependent class is marked with @Component, @Service, @Repository, etc.
+        
+        - Uses @ComponentScan to automatically detect and register beans.
+        
+        - No need for an explicit XML configuration file; Spring scans packages and manages beans automatically.
+
+        - Requires a public setter method for dependency injection.
+
+        - Can be combined with @Qualifier to specify which bean to inject if multiple beans of the same type exist.
+
+    Example:
+
+        (1) XML based Configuration:
+
+            Employee.class:
+
+                ```
+                    public class Employee {
+                        private int id;
+                        private String name;
+
+                        // Setter methods for Dependency Injection
+                        public void setId(int id) {
+                            this.id = id;
+                        }
+
+                        public void setName(String name) {
+                            this.name = name;
+                        }
+
+                        @Override
+                        public String toString() {
+                            return String.format("Employee[id=%d", name=%s]", id, name);
+                        }
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <beans 
+                        xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                                http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <!-- Defining Employee Bean and Injecting Dependencies using Setter Injection -->
+                        <bean id="employee1" class="org.example.setterInjection.primitiveDependenciesType.beans.Employee">
+                            <property name="id"><value>101</value></property>
+                            <property name="name"><value>John Doe</value></property>
+                        </bean>
+                    </beans>
+
+                ```
+            
+            Main.class:
+
+                ```
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            // Load the Spring Configuration File
+                            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beanConfig.xml");
+
+                            // Retrieve Employee Beans
+                            Employee employee1 = context.getBean("employee1", Employee.class);
+
+                            // Display Employee Details
+                            System.out.println(employee1);
+
+                            // Close the Spring Context
+                            context.close();
+                        }
+                    }
+
+                ```
+
+        (2) Annotations based Configuration:
+
+            Department.class:
+
+                ```
+                    import org.springframework.stereotype.Component;
+
+                    @Component  // Marks this class as a Spring Bean
+                    public class Department {
+                        private String deptName = "Software Development";
+
+                        @Override
+                        public String toString() {
+                            return String.format("Department[deptName=%s]", deptName);
+                        }
+                    }
+                ```
+
+            Employee.class:
+
+                ```import org.springframework.stereotype.Component;
+
+                    @Component  // Marks this class as a Spring Bean
+                    public class Employee {
+                        private int id;
+                        private String name;
+                        private Department department;
+
+                        @Autowired  // Spring will inject the Department bean here
+                        public void setDepartment(Department department) {
+                            this.department = department;
+                        }
+
+                        @Override
+                        public String toString() {
+                            return String.format("Employee[id=%d", name=%s, department=%s]", id, name, department);
+                        }
+                    }
+                ```
+
+            AppConfig.class:
+
+                ```
+                    import org.springframework.context.annotation.ComponentScan;
+                    import org.springframework.context.annotation.Configuration;
+
+                    @Configuration  // Marks this class as a Configuration Class
+                    @ComponentScan(basePackages = "org.example") // Scans the specified package for Spring Beans 
+                    public class AppConfig {
+
+                    }
+                ```
+
+            Main.class:
+
+                ```
+                    import org.example.setterInjection.annotation.beans.Employee;
+                    import org.example.setterInjection.annotation.config.AppConfig;
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+
+                            // Load the Spring Context using Annotation-Based Configuration
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+                            // Retrieve Employee Bean
+                            Employee employee = context.getBean(Employee.class);
+
+                            // Display Employee Details
+                            System.out.println(employee);
+                        }
+                    }
+
+                ```
+________________________________________________________________________________________________________________________
+
