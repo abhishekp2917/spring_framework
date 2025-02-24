@@ -1,0 +1,140 @@
+*   What are various major versions & features of Spring Framework.
+
+>>  Below is a detailed breakdown of each major Spring Framework version:
+
+    (1) Spring 1.x (2004) – The Beginning
+        
+        Key Features:
+
+            - Dependency Injection (DI): Introduced XML-based configuration for wiring beans.
+            
+            - Aspect-Oriented Programming (AOP): Enabled separation of cross-cutting concerns like logging and transactions.
+            
+            - Transaction Management: Provided declarative transaction management.
+            
+            - Spring MVC: Introduced a lightweight, flexible web framework.
+            
+            - JdbcTemplate: Simplified database operations.
+
+        Deprecated:
+
+            - Early XML DTD-based configuration was replaced by XML Schema-based configuration.
+
+    (2) Spring 2.x (2006) – Enhancements & Modularity
+        
+        Key Features:
+
+            - Java-based Configuration (Basic): Allowed configuring beans via Java code instead of XML.
+            
+            - Annotation-based Configuration (@Autowired, @Component): Reduced XML dependency.
+            
+            - Spring ORM Improvements: Better integration with Hibernate, JPA, and JDBC.
+            
+            - Spring Security 2.0: Advanced authentication and authorization mechanisms.
+            
+            - Task Execution & Scheduling Support: @Scheduled annotation introduced.
+        
+        Deprecated:
+
+            - @Required annotation (marked deprecated in later versions).
+            
+            - Some older XML elements were replaced by annotation-based configurations.
+
+    (3) Spring 3.x (2009) – Introduction of Java-based Configuration
+        
+        Key Features:
+
+            - Full Java-based Configuration (@Configuration, @Bean): Replaced XML configurations.
+            
+            - Spring Expression Language (SpEL): Used for injecting values dynamically.
+            
+            - RESTful Web Services Support: Introduction of @RestController.
+            
+            - Spring MVC Improvements: Introduced @RequestMapping, @PathVariable, etc.
+            
+            - Java 5+ Support: Dropped support for older Java versions.
+            
+            - Support for JSR-330 annotations (@Inject, @Named).
+            
+            - Support for JSR-303 Bean Validation.
+        
+        Deprecated:
+
+            - BeanFactory was discouraged in favor of ApplicationContext.
+            
+            - @Required annotation deprecated.
+            
+            - XML-based configurations started being discouraged.
+
+    (4) Spring 4.x (2014) – Java 8 & Web Enhancements
+        
+        Key Features:
+
+            - WebSocket Support: Enabled real-time messaging.
+            
+            - Java 8 Support: Lambda expressions, Streams, and Optional API used in Spring.
+            
+            - @RestController Simplification: Combined @Controller + @ResponseBody.
+            
+            - Spring Boot 1.0 Released: Simplified Spring-based application development.
+            
+            - Conditional Beans (@Conditional): Allowed beans to be created dynamically based on conditions.
+
+            - Improved asynchronous execution with @Async.
+        
+        Deprecated:
+
+            - Dropped support for Java 6 & 7.
+            
+            - XML-based configurations were further discouraged.
+            
+            - @AspectJ and @TransactionConfiguration replaced by better alternatives.
+
+    (5) Spring 5.x (2017) – Reactive Programming & Modernization
+        
+        Key Features:
+
+            - Reactive Programming (WebFlux): Built for handling non-blocking, event-driven applications.
+            
+            - Project Reactor: Foundation for WebFlux (alternative to traditional Spring MVC).
+            
+            - Functional Bean Registration: Added via Kotlin and Java lambdas.
+            
+            - Full Java 9+ Support: Adoption of Java modules.
+            
+            - Kotlin Support: Enabled writing Spring applications in Kotlin.
+
+            - Support for Spring Boot 2.0.
+    
+        Deprecated:
+
+            - Removed support for Java 7 and below.
+
+            - @Configuration class proxying changed to improve performance.
+
+    (6) Spring 6.x (2022) – Jakarta EE & Ahead-of-Time Compilation
+        
+        Key Features:
+
+            - Jakarta EE 9+ Compatibility: Fully moved to jakarta.* package instead of javax.*.
+            
+            - Java 17+ Required: Older Java versions no longer supported.
+            
+            - GraalVM Native Image Support: Enables fast startup and low memory usage.
+            
+            - Observability (Micrometer, Tracing): Improved monitoring and logging.
+            
+            - Spring Boot 3.x Released: Major updates aligning with Spring 6.
+        
+        Deprecated:
+
+            - Removed support for Java 8, 11 (now requires Java 17+).
+            
+            - Dropped older Jakarta EE versions (pre-Jakarta EE 9).
+            
+            - Removed older Spring Security authentication mechanisms in favor of modern OAuth2-based authentication.
+            
+________________________________________________________________________________________________________________________
+
+
+

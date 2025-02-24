@@ -1,0 +1,378 @@
+*   What are Bean Lifecycle methods ?
+
+>>  The Bean Lifecycle in Spring refers to the process a bean goes through from its creation to its destruction. 
+    
+    Steps in Spring Bean Lifecycle:
+
+        (1) Instantiation:
+
+            - The Spring container creates an instance of the bean using the constructor.
+            
+            - If dependency injection is required, Spring injects the dependencies into the bean.
+        
+        (2) Dependency Injection:
+
+            - Spring injects values into the bean’s properties as defined in the configuration (XML, annotations, or Java-based).
+
+        (3) BeanPostProcessor (postProcessBeforeInitialization):
+
+            - If there is a BeanPostProcessor, it executes its postProcessBeforeInitialization() method before initialization methods.
+
+        (4) Initialization (Custom Methods):
+
+            - Bean initialization methods are invoked using one of the following approaches:
+                
+                (a) @PostConstruct annotation
+                
+                (b) afterPropertiesSet() from InitializingBean
+                
+                (c) init-method in XML configuration
+
+        (5) BeanPostProcessor (postProcessAfterInitialization):
+
+            - If there is a BeanPostProcessor, it executes its postProcessAfterInitialization() method after initialization methods.
+        
+        (6) Bean is Ready to Use:
+
+            - The bean is now fully initialized and ready to be used in the application.
+
+        (7) Pre-destroy (Cleanup Methods):
+
+            - When the container is shutting down or the bean is being removed, cleanup methods are executed using one 
+              of the following approaches:
+                
+                (a) @PreDestroy annotation
+                
+                (b) destroy() from DisposableBean
+                
+                (c) destroy-method in XML configuration
+
+        (8) Destruction:
+
+            - The bean is removed from memory and its resources are cleaned up.
+
+________________________________________________________________________________________________________________________
+
+*   What are various ways to define Bean Lifecycle methods ?
+
+>>  (1) XML-based Lifecycle Methods (init-method and destroy-method):
+
+        - Spring allows specifying lifecycle methods in XML configuration.
+
+        How It Works:
+
+            (a) init-method: 
+            
+                - Specifies a method that will be called after dependency injection.
+            
+            (b) destroy-method: 
+            
+                - Specifies a method that will be called before the bean is destroyed.
+        
+        Example:
+
+            Employee.class:
+
+                ```
+                    public class Employee {
+                        private String name;
+
+                        public void setName(String name) { this.name = name; }
+
+                        public void init() { System.out.println("Employee initialized using init-method: " + name); }
+
+                        public void cleanup() { System.out.println("Employee destroyed using destroy-method: " + name); }
+
+                        @Override
+                        public String toString() { return "Employee{name='" + name + "'}"; }
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <bean 
+                        id="employee" 
+                        class="com.example.Employee" 
+                        init-method="init" 
+                        destroy-method="cleanup">
+
+                        <property name="name" value="John Doe"/>
+                    </bean>
+                ```
+
+            Main.class:
+
+                ```
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            
+                            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+                            
+                            Employee emp = context.getBean("employee", Employee.class);
+                            
+                            System.out.println(emp);
+                            
+                            context.close(); // Triggers destroy method
+                        }
+                    }
+                ```
+
+    (2) Interface-based Lifecycle Methods (InitializingBean and DisposableBean):
+
+        - Spring provides two interfaces:
+
+            (a) InitializingBean:
+            
+                - Defines afterPropertiesSet(), called after property injection.
+            
+            (b) DisposableBean:
+            
+                - Defines destroy(), called before bean destruction.
+        
+        How It Works:
+            
+            - Implement InitializingBean → Override afterPropertiesSet().
+            
+            - Implement DisposableBean → Override destroy().
+        
+        Example:
+
+            Employee.class:
+
+                ```
+                    import org.springframework.beans.factory.DisposableBean;
+                    import org.springframework.beans.factory.InitializingBean;
+
+                    public class Employee implements InitializingBean, DisposableBean {
+                        private String name;
+
+                        public void setName(String name) { this.name = name; }
+
+                        @Override
+                        public void afterPropertiesSet() {
+                            System.out.println("InitializingBean: Employee initialized, name = " + name);
+                        }
+
+                        @Override
+                        public void destroy() {
+                            System.out.println("DisposableBean: Employee destroyed, name = " + name);
+                        }
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <bean 
+                        id="employee" 
+                        class="com.example.Employee">
+
+                        <property name="name" value="Alice"/>
+                    </bean>
+                ```
+            
+            Main.class:
+
+                ```
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            
+                            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+                            
+                            Employee emp = context.getBean("employee", Employee.class);
+                            
+                            System.out.println(emp);
+                            
+                            context.close(); // Triggers destroy method
+                        }
+                    }
+                ```
+
+    (3) Annotation-based Lifecycle Methods (@PostConstruct and @PreDestroy):
+
+        - The recommended modern approach uses @PostConstruct and @PreDestroy annotations.
+
+        How It Works:
+                    
+            - @PostConstruct → Runs after dependency injection.
+            
+            - @PreDestroy → Runs before the bean is removed.
+        
+        Example:
+
+            Employee.class:
+
+                ```
+                    import jakarta.annotation.PostConstruct;
+                    import jakarta.annotation.PreDestroy;
+
+                    public class Employee {
+                        private String name;
+
+                        public void setName(String name) { this.name = name; }
+
+                        @PostConstruct
+                        public void init() { System.out.println("@PostConstruct: Employee initialized, name = " + name); }
+
+                        @PreDestroy
+                        public void cleanup() { System.out.println("@PreDestroy: Employee destroyed, name = " + name); }
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <bean 
+                        id="employee" 
+                        class="com.example.Employee">
+
+                        <property name="name" value="Bob"/>
+                    </bean>
+                ```
+            
+            Main.class:
+
+                ```
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            
+                            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+                            
+                            Employee emp = context.getBean("employee", Employee.class);
+                            
+                            System.out.println(emp);
+                            
+                            context.close(); // Triggers destroy method
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   What is BeanPostProcessor ?
+
+>>  BeanPostProcessor is an interface in Spring that allows us to modify beans before and after initialization. 
+
+    It is mainly used for:
+
+        - Adding custom logic to beans during initialization.
+        
+        - Performing additional configurations.
+        
+        - Injecting dependencies dynamically.
+        
+        - Implementing cross-cutting concerns like logging, security, or auditing.
+
+    BeanPostProcessor methods are invoked before and after the initialization phase of a Spring bean.
+
+        (a) postProcessBeforeInitialization: executes before initialization
+
+        (b) postProcessAfterInitialization: executes after initialization
+
+    Unlike lifecycle callbacks like @PostConstruct (which are specific to a bean), BeanPostProcessor methods are generic 
+    and apply to every bean managed by the Spring container.
+
+    BeanPostProcessor only applies to singleton and prototype beans. If a bean is @Bean(scope="request") or 
+    @Bean(scope="session") (used in web apps), Spring won't call BeanPostProcessor.
+
+    Example:
+
+        CustomBeanProcessor.class:
+
+            ```
+                import org.springframework.beans.BeansException;
+                import org.springframework.beans.factory.config.BeanPostProcessor;
+                import org.springframework.stereotype.Component;
+
+                public class CustomBeanProcessor implements BeanPostProcessor {
+
+                    @Override
+                    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                        
+                        System.out.println("Before Initialization: " + beanName);
+                        return bean; // Returning the original bean
+                    }
+
+                    @Override
+                    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+                        
+                        System.out.println("After Initialization: " + beanName);
+                        return bean; // Returning the original bean
+                    }
+                }
+            ```
+        
+        Person.class:
+
+            ```
+                import jakarta.annotation.PostConstruct;
+                import jakarta.annotation.PreDestroy;
+
+                public class Person {
+                    private int id;
+                    private String name;
+
+                    public void setId(int id) { this.id = id; }
+
+                    public void setName(String name) { this.name = name; }
+
+                    @PostConstruct
+                    public void init() { System.out.println("@PostConstruct: Person initialized, name = " + name); }
+
+                    @PreDestroy
+                    public void cleanup() { System.out.println("@PreDestroy: Person destroyed, name = " + name); }
+                }
+            ```
+
+        beans.xml:
+
+            ```
+                <?xml version="1.0" encoding="UTF-8"?>
+                <beans xmlns="http://www.springframework.org/schema/beans"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:context="http://www.springframework.org/schema/context"
+                    xmlns:p="http://www.springframework.org/schema/p"
+                    xsi:schemaLocation="
+                            http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context.xsd">
+
+                    <!-- Defining a bean named "person1" of class `Person` -->
+                    <bean name="person1" class="org.example.lifeCycle.beanPostProcessor.beans.Person"
+                        p:id="1"
+                        p:name="Abhishek Pandey"
+                        >
+                    </bean>
+
+                    <!-- Register BeanPostProcessor -->
+                    <bean name="beanPostProcessor" class="org.example.lifeCycle.beanPostProcessor.config.CustomBeanProcessor"/>
+
+                    <!-- This will enable all the annotations for spring -->
+                    <context:annotation-config />
+                </beans>
+            ```
+        
+        Main.class:
+
+            ```
+                import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                public class MainApp {
+                    public static void main(String[] args) {
+                        
+                        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                        Person person = context.getBean(Person.class);
+                        context.close(); 
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
