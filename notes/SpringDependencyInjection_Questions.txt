@@ -189,5 +189,185 @@ ________________________________________________________________________________
                     }
 
                 ```
+
 ________________________________________________________________________________________________________________________
+
+*   Explain Constructor Injection in detail.
+
+>>  Constructor Injection is a type of Dependency Injection where Spring injects dependencies into a bean using 
+    its constructor. 
+
+    The dependencies are provided at the time of object creation.
+
+    The Spring container calls the constructor with the required dependencies and initializes the bean.
+
+    (1) XML-Based Constructor Injection
+
+        - Beans and dependencies are defined in an XML configuration file.
+        
+        - Uses the <constructor-arg> tag inside a <bean> definition to inject values or references.
+        
+        - The dependent class must have a constructor that takes dependencies as parameters.
+        
+        - Requires loading Spring's application context via ClassPathXmlApplicationContext.
+        
+        - If a dependency is a class, it is referenced using ref="beanId", and if it’s a primitive type, it is assigned using value="someValue".
+        
+    (2) Annotation-Based Constructor Injection
+        
+        - Uses @Autowired annotation to inject dependencies through the constructor.
+        
+        - The dependent class is marked with @Component, @Service, @Repository, etc.
+        
+        - Uses @ComponentScan to automatically detect and register beans.
+        
+        - No need for an explicit XML configuration file; Spring scans packages and manages beans automatically.
+        
+        - If multiple beans of the same type exist, @Qualifier is used to specify which bean to inject.
+    
+    Example:
+    
+        (1) XML-Based Configuration:
+                
+            Employee.class:
+
+                ```
+                    public class Employee {
+                        private int id;
+                        private String name;
+
+                        // Constructor for Dependency Injection
+                        public Employee(int id, String name) {
+                            this.id = id;
+                            this.name = name;
+                        }
+
+                        @Override
+                        public String toString() {
+                            return String.format("Employee[id=%d, name=%s]", id, name);
+                        }
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <beans 
+                        xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                                http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <!-- Defining Employee Bean and Injecting Dependencies using Constructor Injection -->
+                        <bean id="employee1" class="org.example.constructorInjection.Employee">
+                            <constructor-arg value="101"/>
+                            <constructor-arg value="John Doe"/>
+                        </bean>
+
+                    </beans>
+                ```
+
+            Main.class:
+
+                ```
+                    import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            // Load the Spring Configuration File
+                            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+                            // Retrieve Employee Bean
+                            Employee employee1 = context.getBean("employee1", Employee.class);
+
+                            // Display Employee Details
+                            System.out.println(employee1);
+
+                            // Close the Spring Context
+                            context.close();
+                        }
+                    }
+                ```
+        
+        (2) Annotation-Based Configuration:
+
+            Department.class:
+
+                ```
+                    import org.springframework.stereotype.Component;
+
+                    @Component  // Marks this class as a Spring Bean
+                    public class Department {
+                        private String deptName = "Software Development";
+
+                        @Override
+                        public String toString() {
+                            return String.format("Department[deptName=%s]", deptName);
+                        }
+                    }
+                ```
+            Employee.class:
+
+                ```
+                    import org.springframework.beans.factory.annotation.Autowired;
+                    import org.springframework.stereotype.Component;
+
+                    @Component  // Marks this class as a Spring Bean
+                    public class Employee {
+                        private int id;
+                        private String name;
+                        private Department department;
+
+                        @Autowired  // Spring will inject the Department bean here using Constructor Injection
+                        public Employee(Department department) {
+                            this.department = department;
+                        }
+
+                        @Override
+                        public String toString() {
+                            return String.format("Employee[id=%d, name=%s, department=%s]", id, name, department);
+                        }
+                    }
+                ```
+        
+            AppConfig.class:
+
+                ```
+                    import org.springframework.context.annotation.ComponentScan;
+                    import org.springframework.context.annotation.Configuration;
+
+                    @Configuration  // Marks this class as a Configuration Class
+                    @ComponentScan(basePackages = "org.example") // Scans the specified package for Spring Beans 
+                    public class AppConfig {
+
+                    }
+                ```
+
+            Main.class:
+
+                ```
+                    import org.example.constructorInjection.annotation.beans.Employee;
+                    import org.example.constructorInjection.annotation.config.AppConfig;
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+
+                            // Load the Spring Context using Annotation-Based Configuration
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+                            // Retrieve Employee Bean
+                            Employee employee = context.getBean(Employee.class);
+
+                            // Display Employee Details
+                            System.out.println(employee);
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+
 

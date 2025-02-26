@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a Processor bean using Constructor Injection.
+        This bean will be used as a dependency for Laptop beans.
+        The Processor class constructor likely has the following parameters:
+            - int id
+            - String brand
+            - double clockSpeed
+    -->
+    <bean name="processor1" class="org.example.constructorInjection.referenceDependenciesType.beans.Processor">
+        <constructor-arg value="1" />          <!-- Processor ID -->
+        <constructor-arg value="Intel" />      <!-- Processor Brand -->
+        <constructor-arg value="2.8" />        <!-- Processor Clock Speed (GHz) -->
+    </bean>
+
+    <!--
+        Defining a Laptop bean with constructor injection.
+        The Laptop class constructor likely has the following parameters:
+            - int id
+            - String brand
+            - int storage (GB)
+            - Processor processor (Object Reference)
+    -->
+    <bean name="laptop1" class="org.example.constructorInjection.referenceDependenciesType.beans.Laptop">
+        <constructor-arg value="1" />          <!-- Laptop ID -->
+        <constructor-arg value="ASUS" />       <!-- Laptop Brand -->
+        <constructor-arg value="512" />        <!-- Storage (GB) -->
+        <constructor-arg>
+            <ref bean="processor1" />          <!-- Injecting Processor Bean (Reference) -->
+        </constructor-arg>
+    </bean>
+
+    <!--
+        Another Laptop bean using a different syntax for Constructor Injection.
+        The "ref" attribute is used directly within the constructor-arg tag.
+    -->
+    <bean name="laptop2" class="org.example.constructorInjection.referenceDependenciesType.beans.Laptop">
+        <constructor-arg value="2" />          <!-- Laptop ID -->
+        <constructor-arg value="HP" />         <!-- Laptop Brand -->
+        <constructor-arg value="256" />        <!-- Storage (GB) -->
+        <constructor-arg ref="processor1" />   <!-- Injecting Processor Bean (Reference) -->
+    </bean>
+
+</beans>

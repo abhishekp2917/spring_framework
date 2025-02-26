@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Constructor ambiguity problem:
+        If a constructor has multiple parameters of similar types (e.g., two integers),
+        Spring may not be able to determine the correct mapping of values to parameters.
+
+        There are 3 ways to resolve this ambiguity:
+        1. **By Explicit Type Declaration (`type` attribute)**
+        2. **By Specifying Parameter Index (`index` attribute)**
+        3. **By Using Different Data Types in the Constructor Definition**
+    -->
+
+    <!--
+        Processor1: This bean does not explicitly specify `type` or `index`.
+        Potential Ambiguity:
+        - The constructor might have parameters like `Processor(int, int, String)`, but since
+          two arguments are of type `int`, Spring may not know which `int` corresponds to which parameter.
+        - If there are multiple constructors, Spring may throw an error.
+    -->
+    <bean name="processor1" class="org.example.constructorInjection.ambiguityProblem.beans.Processor">
+        <constructor-arg value="1"/>         <!-- Might refer to either int or long -->
+        <constructor-arg value="4"/>         <!-- Might refer to either int or long -->
+        <constructor-arg value="Intel"/>     <!-- Clearly a String -->
+    </bean>
+
+    <!--
+        Processor2: Resolving ambiguity using the `type` attribute.
+        - Here, specifying `type="int"` ensures that both `1` and `4` are mapped to integer parameters.
+        - The third argument is explicitly marked as `java.lang.String`, eliminating any confusion.
+        - This is useful when multiple overloaded constructors exist with similar parameter types.
+    -->
+    <bean name="processor2" class="org.example.constructorInjection.ambiguityProblem.beans.Processor">
+        <constructor-arg value="2" type="int"/>                    <!-- Ensures it maps to an int parameter -->
+        <constructor-arg value="4" type="int"/>                    <!-- Ensures it maps to an int parameter -->
+        <constructor-arg value="AMD" type="java.lang.String"/>      <!-- Ensures it maps to a String parameter -->
+    </bean>
+
+    <!--
+        Processor3: Ambiguity due to `int` vs `long`
+        - If `long` parameters exist in the constructor, specifying `type="long"` helps.
+        - Without type specification, Spring may default to `int`, leading to a mismatch error.
+    -->
+    <bean name="processor3" class="org.example.constructorInjection.ambiguityProblem.beans.Processor">
+        <constructor-arg value="3" type="long"/>   <!-- Maps explicitly to a long parameter -->
+        <constructor-arg value="8" type="long"/>   <!-- Maps explicitly to a long parameter -->
+        <constructor-arg value="AMD"/>            <!-- Spring infers this as String -->
+    </bean>
+
+    <!--
+        Processor4: Resolving ambiguity using `index`
+        - `index` specifies the exact position of the argument in the constructor.
+        - This is useful when multiple parameters have the same type and specifying `type` is not enough.
+        - Order of arguments in XML does not matter if `index` is used.
+    -->
+    <bean name="processor4" class="org.example.constructorInjection.ambiguityProblem.beans.Processor">
+        <constructor-arg value="Intel" index="2" type="java.lang.String"/>  <!-- Third parameter -->
+        <constructor-arg value="16" index="1" type="int"/>                 <!-- Second parameter -->
+        <constructor-arg value="4" index="0" type="long"/>                 <!-- First parameter -->
+    </bean>
+
+</beans>

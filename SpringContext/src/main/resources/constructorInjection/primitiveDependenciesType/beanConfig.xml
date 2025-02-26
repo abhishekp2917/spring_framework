@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Constructor Injection using <constructor-arg> with nested <value> elements
+        - The order of <constructor-arg> elements MUST match the order of constructor parameters
+        - If the order is incorrect, Spring will attempt type matching but may throw an error if types are ambiguous
+        - This method is explicit and ensures proper injection but is slightly verbose
+    -->
+    <bean name="emp1" class="org.example.constructorInjection.primitiveDependenciesType.beans.Employee">
+        <!-- 1st parameter: id (long) -->
+        <constructor-arg>
+            <value>1</value>
+        </constructor-arg>
+        <!-- 2nd parameter: firstName (String) -->
+        <constructor-arg>
+            <value>Abhishek</value>
+        </constructor-arg>
+        <!-- 3rd parameter: lastName (String) -->
+        <constructor-arg>
+            <value>Pandey</value>
+        </constructor-arg>
+        <!-- 4th parameter: age (int) -->
+        <constructor-arg>
+            <value>23</value>
+        </constructor-arg>
+    </bean>
+
+    <!--
+        Constructor Injection using <constructor-arg> with the "value" attribute
+        - The order of <constructor-arg> elements MUST match the constructor's parameter order
+        - This method is more concise than the previous one
+    -->
+    <bean name="emp2" class="org.example.constructorInjection.primitiveDependenciesType.beans.Employee">
+        <constructor-arg value="2"/>  <!-- 1st parameter: id (long) -->
+        <constructor-arg value="Goku"/>  <!-- 2nd parameter: firstName (String) -->
+        <constructor-arg value="Singh"/>  <!-- 3rd parameter: lastName (String) -->
+        <constructor-arg value="30"/>  <!-- 4th parameter: age (int) -->
+    </bean>
+
+    <!--
+        Constructor Injection using "c-namespace" (Preferred for readability)
+        - "c:_0", "c:_1", etc., correspond to the index position of the constructor parameters
+        - This approach is shorter, cleaner, and enforces order implicitly
+        - If the order is incorrect, the wrong values will be assigned, potentially causing type mismatches or logic errors
+    -->
+    <bean name="emp3" class="org.example.constructorInjection.primitiveDependenciesType.beans.Employee"
+          c:_0="3"
+          c:_1="Hritik"
+          c:_2="Roshan"
+          c:_3="42"/>
+
+</beans>
