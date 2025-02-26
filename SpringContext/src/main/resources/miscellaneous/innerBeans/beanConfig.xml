@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a Laptop bean with an inner bean for the Processor.
+        Inner beans are defined within the scope of another bean and cannot be reused elsewhere.
+    -->
+    <bean name="laptop1" class="org.example.miscellaneous.innerBeans.beans.Laptop"
+          p:id="1"
+          p:company="ASUS"
+          p:storageInGB="512">
+
+        <!--
+            Defining an inner bean for the Processor inside the Laptop bean.
+            Since this Processor bean is declared inside Laptop, it cannot be accessed globally elsewhere in the container by any other beans.
+        -->
+        <property name="processor">
+            <bean class="org.example.miscellaneous.innerBeans.beans.Processor"
+                  p:id="1"
+                  p:company="Intel"
+                  p:clockSpeed="4.1" />
+        </property>
+    </bean>
+
+</beans>

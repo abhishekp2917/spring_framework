@@ -1,0 +1,61 @@
+*   What are Inner Beans ?
+
+>>  In Spring, an Inner Bean is a bean that is defined inside another bean’s definition.
+
+    Inner beans do not have an id or name and are only accessible inside the parent bean due to which it is created and ]
+    destroyed along with the parent bean.
+
+    Inner beans are used when a bean is exclusively dependent on another bean and does not need to be shared by other 
+    beans in the application context.
+
+    Example:
+
+        Laptop.class:
+
+            ```
+                public class Laptop {
+                    private int id;
+                    private Processor processor;
+
+                    // Setters
+                    public void setId(int id) { this.id = id; }
+                    public void setProcessor(Processor processor) { this.processor = processor; }
+                }
+            ```
+
+        Processor.class:
+
+            ```
+                public class Processor {
+                    private int id;
+                    private double clockSpeed;
+
+                    // Setters
+                    public void setId(int id) { this.id = id; }
+                    public void setClockSpeed(double clockSpeed) { this.clockSpeed = clockSpeed; }
+                }
+            ```
+
+        beans.xml:
+
+            ```
+                <bean id="laptop1" class="com.example.Laptop">
+                    <property name="id" value="1"/>
+
+                    <!-- Defining an Inner Bean for Processor -->
+                    <property name="processor">
+                        <bean class="com.example.Processor">
+                            <property name="id" value="100"/>
+                            <property name="clockSpeed" value="4.1"/>
+                        </bean>
+                    </property>
+                </bean>
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain Bean Scopes in detail.
+
+>>
+
+________________________________________________________________________________________________________________________
