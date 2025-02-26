@@ -2,7 +2,6 @@ package org.example.lifeCycle.beanPostProcessor.beans;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.springframework.context.annotation.Scope;
 
 /**
  * The `Person` class demonstrates Spring Bean lifecycle using annotations.
