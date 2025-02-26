@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a prototype-scoped bean named "emp1" of class Employee.
+
+        - The `scope="prototype"` ensures that **a new instance** of this bean is created
+          every time it is requested from the Spring container.
+        - Unlike singleton beans, prototype beans are **not shared** and **do not have a single
+          cached instance** within the container.
+        - Since Spring **does not manage the complete lifecycle** of prototype beans,
+          the `destroy-method` is **not called automatically**.
+    -->
+    <bean name="emp1" class="org.example.miscellaneous.scopes.prototype.beans.Employee"
+          init-method="initialize"
+          destroy-method="destroy"
+          scope="prototype">
+        <property name="id">
+            <value>1</value>
+        </property>
+        <property name="firstName">
+            <value>Abhishek</value>
+        </property>
+        <property name="lastName">
+            <value>Pandey</value>
+        </property>
+        <property name="age">
+            <value>23</value>
+        </property>
+    </bean>
+
+</beans>

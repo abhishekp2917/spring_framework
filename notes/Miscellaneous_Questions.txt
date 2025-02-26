@@ -56,6 +56,203 @@ ________________________________________________________________________________
 
 *   Explain Bean Scopes in detail.
 
->>
+>>  In Spring, a bean scope defines the lifecycle and visibility of a bean within the Spring container. 
 
+    It determines how many instances of a bean will be created and how they will be shared within the application.
+
+    Bean scopes can be specified using @Scope annotation or scope attribute in XML configuration.
+
+    Spring provides five built-in scopes:
+ 
+        (1) Singleton Scope (Default):
+
+            - Only one instance of the bean is created per Spring container.
+            
+            - Every time the bean is requested, the same instance is returned.
+
+            - Memory efficient since it doesn’t create multiple objects.
+            
+            - This is the default scope in Spring.
+            
+            Use Case:
+
+                - Shared components like services, DAOs, repositories where only one instance is required.
+            
+            Example:
+
+                Using Annotations:
+
+                    Employee.class:
+                        
+                        ```
+                            @Component
+                            @Scope("singleton")  // Optional since it's the default scope
+                            public class Employee {
+                                public Employee() {
+                                    System.out.println("Employee instance created!");
+                                }
+                            }
+                        ```
+                Using XML Configuration:
+
+                    beans.xml:
+
+                        ```
+                            <bean id="employee" class="com.example.Employee" scope="singleton"/>
+                        ```
+
+                Main.class:
+
+                    ```
+                        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                        Employee bean1 = context.getBean(Employee.class);
+                        Employee bean2 = context.getBean(Employee.class);
+                        System.out.println(bean1 == bean2); // Output: true (same instances)
+                    ```
+
+        (2) Prototype Scope:
+
+            - A new instance is created every time the bean is requested.
+            
+            - The Spring container does not manage the complete lifecycle of the bean i.e. it doesn't call the destroy 
+              method of prototype bean. 
+            
+            Use Case:
+
+                - For stateful objects where each instance needs to maintain separate data.
+            
+            Example:
+
+                Using Annotations:
+
+                    Employee.class:
+
+                        ```
+                            @Component
+                            @Scope("prototype")
+                            public class Employee {
+                                public Employee() {
+                                    System.out.println("Employee instance created!");
+                                }
+                            }
+                        ```
+
+                Using XML Configuration:
+
+                    beans.xml:
+                        
+                        ```
+                            <bean id="employee" class="com.example.Employee" scope="prototype"/>
+                        ```
+
+                Main.class:
+
+                    ```
+                        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                        Employee bean1 = context.getBean(Employee.class);
+                        Employee bean2 = context.getBean(Employee.class);
+                        System.out.println(bean1 == bean2); // Output: false (Different instances)
+                    ```
+
+        (3) Request Scope (Only for Web Applications):
+
+            - A new instance is created for each HTTP request.
+            
+            - The bean is destroyed once the request completes.
+            
+            Use Case:
+
+                - Useful for request-scoped data, like form beans in web applications.
+            
+            Example:
+
+                Using Annotations:
+
+                    Employee.class:
+
+                        ```
+                            @Component
+                            @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+                            public class Employee {
+                                public Employee() {
+                                    System.out.println("Employee instance created!");
+                                }
+                            }
+                        ```
+
+                Using XML Configuration:
+
+                    beans.xml
+
+                        ```
+                            <bean id="employee" class="com.example.Employee" scope="request"/>
+                        ```
+
+        (4) Session Scope (Only for Web Applications):
+
+            - One instance per user session.
+            
+            - The bean is stored in the HTTP session and remains alive until the session expires.
+            
+            Use Case:
+
+                - Used for tracking user data like login sessions, shopping carts, etc.
+
+            Example:
+                
+                Using Annotations:
+
+                    Employee.class:
+                        
+                        ```
+                            @Component
+                            @Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+                            public class Employee {
+                                public Employee() {
+                                    System.out.println("Employee instance created!");
+                                }
+                            }
+                        ```
+                Using XML Configuration:
+
+                    beans.xml:
+
+                        ```
+                            <bean id="employee" class="com.example.Employee" scope="session"/>
+                        ```
+
+        (5) Application Scope (Only for Web Applications):
+
+            - One instance per ServletContext (entire application).
+            
+            - Lives throughout the lifecycle of the web application.
+            
+            Use Case:
+
+                - Used for caching, global settings, and configuration values.
+            
+            Example:
+
+                Using Annotations:
+
+                    Employee.class:
+
+                        ```
+                            @Component
+                            @Scope(value = "application", proxyMode = ScopedProxyMode.TARGET_CLASS)
+                            public class Employee {
+                                public Employee() {
+                                    System.out.println("Employee instance created!");
+                                }
+                            }
+                        ```
+                
+                Using XML Configuration:
+
+                    beans.xml:
+
+                        ```
+                            <bean id="employee" class="com.example.Employee" scope="application"/>
+                        ```
+                        
 ________________________________________________________________________________________________________________________
