@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a bean for Employee and externalizing its properties.
+        - Instead of hardcoding values, placeholders (${...}) are used.
+        - These placeholders fetch values from an external property file (`application.properties`).
+    -->
+    <bean name="emp1" class="org.example.miscellaneous.beanExternalization.beans.Employee">
+        <property name="id">
+            <value>${employee1.id}</value> <!-- Externalized property for Employee ID -->
+        </property>
+        <property name="firstName">
+            <value>${employee1.firstName}</value> <!-- Externalized property for First Name -->
+        </property>
+        <property name="lastName">
+            <value>${employee1.lastName}</value> <!-- Externalized property for Last Name -->
+        </property>
+        <property name="age">
+            <value>${employee1.age}</value> <!-- Externalized property for Age -->
+        </property>
+    </bean>
+
+    <!--
+        Defining another Employee bean with externalized properties using a shorthand syntax.
+        - The "value" attribute is directly assigned with property placeholders.
+    -->
+    <bean name="emp2" class="org.example.miscellaneous.beanExternalization.beans.Employee">
+        <property name="id" value="${employee2.id}"/> <!-- Externalized Employee ID -->
+        <property name="firstName" value="${employee2.firstName}"/> <!-- Externalized First Name -->
+        <property name="lastName" value="${employee2.lastName}"/> <!-- Externalized Last Name -->
+        <property name="age" value="${employee2.age}"/> <!-- Externalized Age -->
+    </bean>
+
+    <!--
+        Loading external property values from `application.properties`
+        - `context:property-placeholder` is used to read the properties file from the classpath.
+        - This enables Spring to replace ${...} placeholders with actual values from the file.
+    -->
+    <context:property-placeholder location="classpath:miscellaneous/beanExternalization/application.properties"/>
+
+</beans>

@@ -256,3 +256,113 @@ ________________________________________________________________________________
                         ```
                         
 ________________________________________________________________________________________________________________________
+
+*   What is Bean Externalization ?
+
+>>  Bean Externalization refers to the practice of defining bean properties outside the application code, typically in 
+    external configuration files. 
+    
+    This allows for greater flexibility, maintainability, and easier modifications without altering the source code.
+
+    One of the method is by using property files. A property file (.properties) contains key-value pairs, where each key 
+    represents a configurable property, and the corresponding value is its setting.
+
+    Example:
+
+        application.properties:
+
+            ```
+                # Database Configuration
+                database.url=jdbc:mysql://localhost:3306/mydb
+                database.username=root
+                database.password=admin
+            ```
+
+        beans.xml:
+
+            - '<context:property-placeholder>' loads 'application.properties' from the classpath.
+            
+            - '${database.url}', '${database.username}', and '${database.password}' are placeholders that fetch values 
+              from the property file.
+
+            ```
+                <beans 
+                    xmlns="http://www.springframework.org/schema/beans"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:context="http://www.springframework.org/schema/context"
+                    xsi:schemaLocation="
+                        http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+                    <!-- Load properties from the application.properties file -->
+                    <context:property-placeholder location="classpath:application.properties" />
+
+
+                    <!-- Define a DataSource bean using property values -->
+                    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+                        <property name="url" value="${database.url}" />
+                        <property name="username" value="${database.username}" />
+                        <property name="password" value="${database.password}" />
+                    </bean>
+
+                </beans>
+            ```
+
+    Apart from injecting properties into beans, we can access property values directly in Spring Components using annotations.
+            
+    The @Value annotation injects values into the fields.
+
+    Example:
+
+        application.properties:
+
+            ```
+                # Application Settings
+                app.name=MySpringApp
+                app.version=1.0.0
+            ```
+
+        AppConfig.class:
+
+            - Spring provides the @PropertySource annotation for loading external property files in a Java configuration.
+
+            ```
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.PropertySource;
+
+                import javax.sql.DataSource;
+
+                @Configuration
+                @PropertySource("classpath:application.properties")  // Load property file
+                public class AppConfig {
+
+                }
+
+            ```
+
+        AppConfigReader.class:
+
+            ```
+                import org.springframework.beans.factory.annotation.Value;
+                import org.springframework.stereotype.Component;
+
+                @Component
+                public class AppConfigReader {
+
+                    @Value("${app.name}")
+                    private String appName;
+
+                    @Value("${app.version}")
+                    private String appVersion;
+
+                    public void displayConfig() {
+                        System.out.println("Application Name: " + appName);
+                        System.out.println("Application Version: " + appVersion);
+                    }
+                }
+
+            ```
+________________________________________________________________________________________________________________________
