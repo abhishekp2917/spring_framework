@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util
+            http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--
+        Defining a standalone List using <util:list>
+        - A List is an ordered collection that allows duplicate elements.
+        - "list-class" specifies the concrete implementation (ArrayList in this case).
+        - "value-type" enforces that the list only contains String values.
+    -->
+    <util:list id="items1" list-class="java.util.ArrayList" value-type="java.lang.String">
+        <value>Frying Pan</value>
+        <value>Maggie</value>
+    </util:list>
+
+    <!-- Another standalone List containing different items -->
+    <util:list id="items2" list-class="java.util.ArrayList" value-type="java.lang.String">
+        <value>Bathing Soap</value>
+        <value>Sunscreen</value>
+    </util:list>
+
+    <!--
+        Defining a standalone Set using <util:set>
+        - A Set is an unordered collection that does **not** allow duplicate elements.
+        - "set-class" specifies HashSet, which ensures unique elements.
+        - "value-type" restricts the type of elements to String.
+    -->
+    <util:set id="categories1" set-class="java.util.HashSet" value-type="java.lang.String">
+        <value>Food</value>
+        <value>Utensils</value>
+    </util:set>
+
+    <!-- Another standalone Set with different categories -->
+    <util:set id="categories2" set-class="java.util.HashSet" value-type="java.lang.String">
+        <value>Cosmetics</value>
+    </util:set>
+
+    <!--
+        Defining a standalone Map using <util:map>
+        - A Map is a key-value collection where keys are unique.
+        - "map-class" specifies HashMap as the implementation.
+        - "value-type" enforces that values must be of type Double.
+    -->
+    <util:map id="priceMap1" map-class="java.util.HashMap" value-type="java.lang.Double">
+        <entry key="Frying Pan" value="1000"/>
+        <entry key="Maggie" value="10"/>
+        <entry key="Bathing Soap" value="50"/>
+        <entry key="Sunscreen" value="700"/>
+    </util:map>
+
+    <!--
+        Defining standalone Properties using <util:properties>
+        - Similar to a Map but restricted to String keys and values.
+        - Used for configuration-like key-value pairs.
+    -->
+    <util:properties id="orderMetadata1">
+        <prop key="itemCount">2</prop> <!-- Number of items in order1 -->
+        <prop key="price">1100</prop>  <!-- Total price for order1 -->
+    </util:properties>
+
+    <!-- Another set of properties for order2 -->
+    <util:properties id="orderMetadata2">
+        <prop key="itemCount">2</prop> <!-- Number of items in order2 -->
+        <prop key="price">750</prop>   <!-- Total price for order2 -->
+    </util:properties>
+
+    <!--
+        Defining a bean (order1) using explicit <property> tags.
+        - The bean represents an order object.
+        - Properties are set using <property> with references to the standalone collections.
+    -->
+    <bean name="order1" class="org.example.miscellaneous.standaloneCollections.beans.Order">
+        <property name="id" value="1"/> <!-- Order ID -->
+        <property name="items">
+            <ref bean="items1"/> <!-- Reference to predefined List items1 -->
+        </property>
+        <property name="categories">
+            <ref bean="categories1"/> <!-- Reference to predefined Set categories1 -->
+        </property>
+        <property name="priceMap">
+            <ref bean="priceMap1"/> <!-- Reference to predefined Map priceMap1 -->
+        </property>
+        <property name="orderMetadata">
+            <ref bean="orderMetadata1"/> <!-- Reference to predefined Properties orderMetadata1 -->
+        </property>
+    </bean>
+
+    <!--
+        Defining another bean (order2) using the p-namespace for a concise definition.
+        - The p-namespace allows setting properties inline instead of using <property>.
+        - This method reduces XML verbosity and improves readability.
+    -->
+    <bean name="order2" class="org.example.miscellaneous.standaloneCollections.beans.Order"
+          p:id="2"
+          p:items-ref="items2"
+          p:categories-ref="categories2"
+          p:priceMap-ref="priceMap1"
+          p:orderMetadata-ref="orderMetadata2"/>
+</beans>

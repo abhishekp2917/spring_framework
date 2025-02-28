@@ -365,4 +365,125 @@ ________________________________________________________________________________
                 }
 
             ```
+
+________________________________________________________________________________________________________________________
+
+*   What are Standalone Collections in Spring ?
+
+>>  Standalone collections in Spring refer to collections (like List, Set, Map, and Properties) that are defined 
+    independently in the Spring configuration, without being tied to a specific bean. 
+    
+    They can be defined at the top level in an XML configuration file or directly in Java-based configuration.
+
+    Why Use Standalone Collections:
+
+        (1) Reusability: Collections can be reused across multiple beans.
+        
+        (2) Decoupling: Keeps configuration separate from bean definitions.
+        
+        (3) Flexibility: Collections can be easily modified without changing multiple beans.
+
+    Standalone Collections in XML Configuration:
+    
+        Example:
+
+            beans.xml:
+
+                - util:list is used to define a standalone List<String>.
+                
+                - util:map is used to define a standalone Map<String, String>.
+
+                - util:set is used to define a standalone Set<String>.
+
+                - util:properties is used to define a standalone Properties.
+
+                ```
+                    <beans xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <!-- Define a standalone list -->
+                        <util:list id="myStringList">
+                            <value>Spring</value>
+                            <value>Hibernate</value>
+                            <value>JPA</value>
+                        </util:list>
+
+                        <!-- Define a standalone map -->
+                        <util:map id="myConfigMap">
+                            <entry key="timeout" value="5000"/>
+                            <entry key="maxConnections" value="10"/>
+                        </util:map>
+
+                        <!-- Define a bean using the standalone collection -->
+                        <bean id="myBean" class="com.example.MyBean">
+                            <property name="stringList" ref="myStringList"/>
+                            <property name="configMap" ref="myConfigMap"/>
+                        </bean>
+
+                    </beans>
+                ```
+
+    Standalone Collections in Java Configuration:
+
+        - In Java-based configuration (@Configuration), we can use @Bean methods to define standalone collections.
+
+        Example:
+
+            AppConfig.class:
+            
+                ```
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+                    import java.util.Arrays;
+                    import java.util.HashMap;
+                    import java.util.List;
+                    import java.util.Map;
+
+                    @Configuration
+                    public class AppConfig {
+
+                        @Bean
+                        public List<String> myStringList() {
+                            return Arrays.asList("Spring", "Hibernate", "JPA");
+                        }
+
+                        @Bean
+                        public Map<String, String> myConfigMap() {
+                            Map<String, String> map = new HashMap<>();
+                            map.put("timeout", "5000");
+                            map.put("maxConnections", "10");
+                            return map;
+                        }
+                    }
+                ```
+
+            MyBean.class:
+
+                ```
+                    import org.springframework.beans.factory.annotation.Autowired;
+                    import org.springframework.stereotype.Component;
+                    import java.util.List;
+                    import java.util.Map;
+
+                    @Component
+                    public class MyBean {
+
+                        private final List<String> stringList;
+                        private final Map<String, String> configMap;
+
+                        @Autowired
+                        public MyBean(List<String> stringList, Map<String, String> configMap) {
+                            this.stringList = stringList;
+                            this.configMap = configMap;
+                        }
+
+                        public void display() {
+                            System.out.println("String List: " + stringList);
+                            System.out.println("Config Map: " + configMap);
+                        }
+                    }
+                ```
+
 ________________________________________________________________________________________________________________________
