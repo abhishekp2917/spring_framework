@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a Processor bean that will be injected into the Laptop bean.
+        - This bean represents a processor with an ID, company name, and clock speed.
+        - The @Autowired annotation in the Laptop class will automatically inject this bean.
+    -->
+    <bean name="processor1" class="org.example.autoWiring.annotationsBased.setterInjection.beans.Processor"
+          p:id="1"
+          p:company="Intel"
+          p:clockSpeed="4.7">
+    </bean>
+
+    <!--
+        Defining a Laptop bean that will receive a Processor bean through setter injection.
+        - The `Laptop` class should have a `setProcessor(Processor processor)` method annotated with @Autowired.
+        - Spring will inject `processor1` into this property automatically.
+    -->
+    <bean name="laptop1" class="org.example.autoWiring.annotationsBased.setterInjection.beans.Laptop"
+          p:id="1"
+          p:company="ASUS">
+    </bean>
+
+    <!--
+        Enabling annotation-based dependency injection.
+        - This tells Spring to process annotations such as @Autowired, @Qualifier, @Resource, etc.
+        - It is required for Spring to detect and process the @Autowired annotation.
+    -->
+    <context:annotation-config/>
+
+</beans>

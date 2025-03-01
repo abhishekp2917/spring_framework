@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining multiple Processor beans.
+        - `processor1`: Represents an AMD processor with ID 1 and a clock speed of 1.7 GHz.
+        - `processor2`: Another AMD processor with ID 2 and the same clock speed.
+        - Since there are multiple beans of the same type, ambiguity occurs when injecting into Laptop.
+        - To resolve this, we will use `@Qualifier` in the Laptop class to specify which bean should be injected.
+    -->
+    <bean name="processor1" class="org.example.autoWiring.annotationsBased.qualifier.beans.Processor"
+          p:id="1"
+          p:company="AMD"
+          p:clockSpeed="1.7">
+    </bean>
+
+    <bean name="processor2" class="org.example.autoWiring.annotationsBased.qualifier.beans.Processor"
+          p:id="2"
+          p:company="AMD"
+          p:clockSpeed="1.7">
+    </bean>
+
+    <!--
+        Defining a Laptop bean that requires a Processor dependency.
+        - Since there are multiple Processor beans (`processor1` and `processor2`), we must specify
+          which one should be injected using the `@Qualifier` annotation in the Laptop class.
+    -->
+    <bean name="laptop1" class="org.example.autoWiring.annotationsBased.qualifier.beans.Laptop"
+          p:id="1"
+          p:company="ASUS">
+    </bean>
+
+    <!--
+        Enabling annotation-based dependency injection.
+        - This allows Spring to process annotations like @Autowired and @Qualifier.
+        - It ensures the beans are injected properly according to our specifications.
+    -->
+    <context:annotation-config/>
+
+</beans>

@@ -1,11 +1,16 @@
-package org.example.autowiring.beans;
+package org.example.autoWiring.annotationsBased.fieldInjection.beans;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class Laptop {
 
     private long id;
     private String company;
+
+    // Field-based autowiring: Spring automatically injects a Processor bean into this field
+    // without requiring explicit setter or constructor injection.
+    @Autowired
     private Processor processor;
-    private int storageInGB;
 
     public void setId(long id) {
         this.id = id;
@@ -17,10 +22,6 @@ public class Laptop {
 
     public void setProcessor(Processor processor) {
         this.processor = processor;
-    }
-
-    public void setStorageInGB(int storageInGB) {
-        this.storageInGB = storageInGB;
     }
 
     public long getId() {
@@ -35,12 +36,8 @@ public class Laptop {
         return processor;
     }
 
-    public int getStorageInGB() {
-        return storageInGB;
-    }
-
     @Override
     public String toString() {
-        return String.format("[id: %d, company: %s , processor: %s, storageInGB: %d]", id, company, processor, storageInGB);
+        return String.format("[id: %d, company: %s , processor: %s]", id, company, processor);
     }
 }

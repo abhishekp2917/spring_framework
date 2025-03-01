@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+        Defining a Processor bean that will be used for autowiring.
+        - This bean has an `id`, `company`, and `clockSpeed` property.
+        - Since we are using different autowiring mechanisms in Laptop beans,
+          this Processor bean will be injected accordingly.
+    -->
+    <bean name="processor" class="org.example.autoWiring.xmlBased.beans.Processor"
+          p:id="1"
+          p:company="Intel"
+          p:clockSpeed="2.7">
+    </bean>
+
+    <!--
+        Laptop Bean 1: Autowiring byType
+        - The `autowire="byType"` configuration injects a bean by matching the type of its property.
+        - Since `Laptop` has a `Processor` field, Spring looks for a bean of type `Processor` in the context.
+        - If exactly one bean of type `Processor` is found (which we defined above), it is injected automatically.
+    -->
+    <bean name="laptop1" class="org.example.autoWiring.xmlBased.beans.Laptop"
+          p:id="1"
+          p:company="ASUS"
+          p:storageInGB="512"
+          autowire="byType">
+    </bean>
+
+    <!--
+        Laptop Bean 2: Autowiring byName
+        - The `autowire="byName"` mechanism injects dependencies by matching the property name of the target bean
+          with an existing bean name in the Spring container.
+        - If the `Laptop` class has a property named `processor`, Spring looks for a bean named `processor` and injects it.
+        - In this case, we have a `processor` bean, so it gets injected automatically.
+    -->
+    <bean name="laptop2" class="org.example.autoWiring.xmlBased.beans.Laptop"
+          p:id="2"
+          p:company="HP"
+          p:storageInGB="256"
+          autowire="byName">
+    </bean>
+
+    <!--
+        Laptop Bean 3: Autowiring by Constructor
+        - The `autowire="constructor"` mechanism injects dependencies via the constructor.
+        - Spring tries to find a matching bean for each constructor parameter by type.
+        - If `Laptop` has a constructor that accepts a `Processor` type parameter, Spring looks for a matching bean.
+        - Here, our `Processor` bean is automatically injected into `Laptop3`'s constructor.
+    -->
+    <bean name="laptop3" class="org.example.autoWiring.xmlBased.beans.Laptop"
+          p:id="3"
+          p:company="Dell"
+          p:storageInGB="1024"
+          autowire="constructor">
+    </bean>
+
+</beans>

@@ -1,0 +1,188 @@
+*   What is Auto-wiring in Spring ?
+
+>>  Auto-wiring in Spring is a feature that automatically injects dependencies into a Spring-managed bean, reducing the 
+    need for explicit <property> or <constructor-arg> configurations in XML or manual setter calls in Java. 
+    
+    It allows Spring to resolve dependencies dynamically at runtime, making the application more maintainable and reducing 
+    boilerplate code.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of XML based Auto Wiring ?
+
+>>  Spring provides several types of auto-wiring mechanisms:
+
+    (1) No Autowiring (autowire="no"):
+        
+        - Default behavior where dependencies are not automatically injected.
+        
+        - Requires explicit configuration using <property> or <constructor-arg> in XML.
+
+    (2) ByType (autowire="byType"):
+
+        - Matches a bean by its type.
+        
+        - If a bean of the matching type is found, Spring injects it automatically.
+
+        - If multiple beans of the same type exist, Spring throws a NoUniqueBeanDefinitionException.
+        
+        Example:
+
+            beans.xml:
+
+                ```
+                    <bean id="laptop" class="com.example.Laptop" autowire="byType"/>
+                ```
+
+    (3) ByName (autowire="byName"):
+
+        - Matches a bean by its property name (should match the bean ID in the container).
+        
+        - Spring searches for a bean with the same name as the property and injects it.
+        
+        Example: 
+            
+            beans.xml:
+
+                Here, if Laptop has a property named processor, Spring will automatically inject the bean with ID "processor".
+
+                ```
+                    <bean id="processor" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop" autowire="byName"/>
+                ```
+
+    (4) Constructor (autowire="constructor"):
+
+        - Injects dependencies via the constructor, matching parameters by type.
+
+        - If multiple beans match, Spring will throw an exception unless @Qualifier is used.
+
+        Example: 
+            
+            beans.xml:
+
+                - The Laptop constructor should have a Processor parameter.
+
+                ```
+                    <bean id="processor" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop" autowire="constructor"/>
+                ```
+
+    (5) Autodetect (Deprecated):
+
+        - This mode first tries constructor-based autowiring; if no matching constructor is found, it falls back to byType.
+        
+        - Deprecated in Spring 3.x and removed in later versions.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of Annotation based Auto Wiring ?
+
+>>  Spring provides annotation-based dependency injection using @Autowired
+
+    (1) Field Injection (@Autowired on Field):
+
+        - Injects the dependency directly into a field.
+        
+        - Not recommended because it makes unit testing difficult.
+
+        Example:
+
+            Laptop.class:
+
+                ```
+                    public class Laptop {
+                        @Autowired
+                        private Processor processor;
+                    }
+                ```
+
+            beans.xml:
+
+                ```
+                    <bean id="processor" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop"/>
+                ```
+
+    (2) Setter Injection (@Autowired on Setter Method):
+
+        - Injects the dependency using a setter method.
+        
+        - Provides better testability compared to field injection.
+
+        Example:
+
+            Laptop.class:
+
+                ```
+                    public class Laptop {
+                        private Processor processor;
+
+                        @Autowired
+                        public void setProcessor(Processor processor) {
+                            this.processor = processor;
+                        }
+                    }
+                ```
+            
+            beans.xml:
+
+                ```
+                    <bean id="processor" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop"/>
+                ```
+
+    (3) Constructor Injection (@Autowired on Constructor):
+
+        - Injects dependencies via the constructor.
+        
+        - Recommended as it makes the class immutable and easier to test.
+
+        Example:
+
+            Laptop.class:
+
+                ```
+                    public class Laptop {
+                        private final Processor processor;
+
+                        @Autowired
+                        public Laptop(Processor processor) {
+                            this.processor = processor;
+                        }
+                    }
+                ```
+            
+            beans.xml:
+
+                ```
+                    <bean id="processor" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop"/>
+                ```
+    (4) Using @Qualifier to Resolve Ambiguity:
+
+        - When multiple beans of the same type exist, @Autowired alone cannot decide which one to inject.
+        
+        - @Qualifier("beanName") explicitly specifies which bean to use.
+
+        - This annotation doesn't work in Constructor but it's parameter.
+
+        Example:
+
+            Laptop.class:
+
+                ```
+                    @Autowired
+                    @Qualifier("processorIntel")
+                    private Processor processor;
+                ```
+
+            beans.xml:
+
+                ```
+                    <bean id="processorAMD" class="com.example.Processor"/>
+                    <bean id="processorIntel" class="com.example.Processor"/>
+                    <bean id="laptop" class="com.example.Laptop"/>
+                ```
+
+________________________________________________________________________________________________________________________

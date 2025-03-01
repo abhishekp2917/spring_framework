@@ -1,4 +1,4 @@
-package org.example.autowiring.beans;
+package org.example.autoWiring.annotationsBased.constructorInjection.beans;
 
 public class Processor {
 
