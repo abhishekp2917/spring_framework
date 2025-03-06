@@ -898,6 +898,39 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is Bean definition ?
+
+>>  In Spring, a Bean Definition is a metadata representation of a Spring-managed bean. 
+    
+    It contains all the information necessary for the Spring IoC (Inversion of Control) container to create, configure, 
+    and manage a bean.
+
+    A Bean Definition includes:
+
+        (1) Class Name – The fully qualified class name of the bean.
+        
+        (2) Scope – Singleton (default) or Prototype.
+        
+        (3) Properties/Dependencies – Dependencies required for the bean (Dependency Injection).
+        
+        (4) Initialization & Destruction Methods – Lifecycle callbacks (@PostConstruct, @PreDestroy, init-method, destroy-method).
+        
+        (5) Factory Methods – If the bean is created via a factory method.
+        
+        (6) Lazy Loading – Whether the bean should be lazily initialized (lazy-init).
+
+    How it works:
+
+        - When the Spring container starts it scans the classpath for beans (@Component, @Service, @Repository, etc.).
+        
+        - It creates a BeanDefinition object for each detected bean.
+        
+        - It registers this BeanDefinition in the BeanFactory.
+        
+        - When required, Spring instantiates the actual bean from the BeanDefinition.
+
+________________________________________________________________________________________________________________________
+
 *   What are various types of Spring Container ?
 
 >>  (1) BeanFactory: 

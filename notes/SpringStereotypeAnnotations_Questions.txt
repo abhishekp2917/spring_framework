@@ -1,0 +1,357 @@
+*   What are various Stereotype annotations in Spring ?
+
+>>  Spring provides four main stereotype annotations—
+
+        (1) @Component 
+        (2) @Service
+        (3) @Repository
+        (4) @Controller
+        
+    These annotations help classify Spring-managed beans into different layers of an application while making them eligible 
+    for component scanning.
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Component annotation in detail.
+
+>>  @Component is a stereotype annotation provided by Spring that marks a class as a Spring-managed bean. 
+
+    When a class is annotated with @Component, Spring automatically detects and registers it in the ApplicationContext 
+    during component scanning.
+
+    It is the most generic stereotype annotation in Spring.
+
+    By default, @Component-annotated classes are registered with a default bean name, which is the lowercase version of 
+    the class name.
+
+    How it works:
+
+        (1) Component Scanning:
+            
+            - Spring automatically detects classes annotated with @Component during component scanning. 
+        
+            - This scanning is triggered when @ComponentScan is used in a configuration class or an XML file. 
+
+            - ClassPathScanningCandidateComponentProvider scans for @Component-annotated classes.
+        
+        (2) Create BeanDefinition:
+
+            - AnnotatedBeanDefinitionReader reads annotations and creates a BeanDefinition object for each detected bean.
+
+        (3) Bean registration in the ApplicationContext:
+
+            - DefaultListableBeanFactory registers the beans in the ApplicationContext.
+
+        (4) Managing Bean:
+
+            - The IoC container manages their lifecycle.
+
+    Example:
+
+        AppConfig.class:
+
+            ```
+                import org.springframework.context.annotation.ComponentScan;
+                import org.springframework.context.annotation.Configuration;
+
+                @Configuration
+                @ComponentScan(basePackages = "com.example") // Scans all @Component classes in this package
+                public class AppConfig {
+                }
+            ```
+
+        UtilityService.class:
+
+            ```
+                import org.springframework.stereotype.Component;
+
+                @Component
+                public class UtilityService {
+                    public void performTask() {
+                        System.out.println("Task performed by UtilityService.");
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Service annotation in detail.
+
+>>  The @Service annotation in Spring is a derivative of @Component, used to define service layer beans which indicates 
+    the class contains business logic.
+
+    While it inherits all functionality from @Component, it provides better semantics and is commonly used with 
+    transactions, AOP, and security features.
+
+    It functions internally the same as @Component and can be used interchangeably in terms of bean registration, but 
+    @Service is preferred for clarity and maintainability.
+
+    Example:
+
+        PaymentService.class:
+            
+            ```
+                import org.springframework.stereotype.Service;
+                import org.springframework.transaction.annotation.Transactional;
+
+                @Service
+                public class PaymentService {
+
+                    @Transactional
+                    public void processPayment() {
+                        // Transaction starts
+                        System.out.println("Processing payment...");
+                        // Transaction commits or rolls back on exception
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Repository annotation in detail.
+
+>>  @Repository is another derivative of @Component. It can be used interchangeably, and Spring will still register the 
+    class as a bean. 
+    
+    However, @Repository provides extra benefit i.e. Exception Translation when working with persistence-related classes 
+    which you won't get when using @Component.
+
+    Exception Translation (PersistenceExceptionTranslationPostProcessor):
+
+        - @Repository enables automatic translation of database-related exceptions into Spring’s DataAccessException hierarchy.
+        
+        - This means checked exceptions (like SQLException) are converted into runtime exceptions.
+
+        - To enable automatic translation, you need to register the PersistenceExceptionTranslationPostProcessor in your 
+          configuration i.e either XML based or Annotation based configuration.
+
+        How This Works:
+
+            - When Spring detects @Repository, it automatically applies PersistenceExceptionTranslationPostProcessor.
+            
+            - This processor intercepts exceptions from JPA, Hibernate, or JDBC repositories.
+            
+            - It converts exceptions like SQLException or JPAException into DataAccessException automatically.
+
+        Example:
+
+            Configuration:
+
+                beans.xml:
+
+                    ```
+                        <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+                    ```
+
+                AppConfig.class:
+
+                    ```
+                        import org.springframework.context.annotation.Bean;
+                        import org.springframework.context.annotation.Configuration;
+                        import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+
+                        @Configuration
+                        public class AppConfig {
+                            @Bean
+                            public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+                                return new PersistenceExceptionTranslationPostProcessor();
+                            }
+                        }
+                    ```
+
+            ProductRepository.class:
+
+                ```
+                    import org.springframework.stereotype.Repository;
+                    import org.springframework.dao.DataAccessException;
+                    import java.sql.SQLException;
+                    import java.util.*;
+
+                    @Repository  // Enables exception translation
+                    public class ProductRepository {
+
+                        public List<String> getProducts() {
+                            // Simulate DB access
+                            // Automatically translated to DataAccessException
+                            throw new SQLException("Database connection error");
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Controller annotation in detail.
+
+>>  The @Controller in Spring is a specialized version of @Component, designed for handling web requests in Spring MVC 
+    applications. 
+    
+    It indicates that a class serves as a Spring MVC controller, allowing it to handle HTTP requests and return responses.
+
+    The @Controller annotation in Spring provides several additional features beyond what @Component offers such as:
+
+        (1) Request Mapping Support:
+
+            - Controllers can map HTTP requests using:
+
+                    - @RequestMapping
+                    - @GetMapping
+                    - @PostMapping
+                    - @PutMapping
+                    - @DeleteMapping
+
+            - Spring's DispatcherServlet automatically detects these mappings and routes requests accordingly.
+            
+            Example:
+
+                UserController.class:
+
+                    ```
+                        @Controller
+                        @RequestMapping("/user")
+                        public class UserController {
+
+                            @GetMapping("/profile")
+                            public String getUserProfile() {
+                                return "profile"; // Resolves to "profile.jsp" or "profile.html"
+                            }
+                        }
+                    ```
+        
+        (2) Automatic View Resolution:
+
+            - By default, @Controller methods return view names that are resolved by a ViewResolver.
+            
+            - Common view resolvers:
+                
+                - InternalResourceViewResolver (for JSP, Thymeleaf, etc.)
+                - BeanNameViewResolver
+                - FreeMarkerViewResolver
+            
+            Example:
+
+                HomeController.class:
+
+                    ```
+                        @Controller
+                        public class HomeController {
+
+                            @GetMapping("/home")
+                            public String home(Model model) {
+                                model.addAttribute("message", "Welcome!");
+                                return "home"; // Renders "home.jsp" or "home.html"
+                            }
+                        }
+                    ```
+                
+        (3️) Model Binding & Data Passing:
+
+            - @Controller supports passing data using:
+                
+                - Model
+                - @ModelAttribute
+                - @RequestParam
+                - @PathVariable
+
+            Example: 
+            
+                - Using @RequestParam
+
+                GreetingController.class:
+
+                    ```
+                        @Controller
+                        public class GreetingController {
+
+                            @GetMapping("/greet")
+                            public String greet(@RequestParam String name, Model model) {
+                                model.addAttribute("greeting", "Hello, " + name);
+                                return "greeting";
+                            }
+                        }
+                    ```
+                
+        (4) Exception Handling via @ExceptionHandler:
+
+            - @Controller allows handling exceptions locally using @ExceptionHandler.
+            
+            Example:
+
+                ErrorController.class:
+
+                    ```
+                        @Controller
+                        public class ErrorController {
+
+                            @GetMapping("/causeError")
+                            public void causeError() {
+                                throw new RuntimeException("Something went wrong!");
+                            }
+
+                            @ExceptionHandler(RuntimeException.class)
+                            public String handleException(RuntimeException e, Model model) {
+                                model.addAttribute("errorMessage", e.getMessage());
+                                return "error"; // Redirects to error.jsp
+                            }
+                        }
+                    ```
+
+        (5) Redirection & Forwarding (redirect: & forward:):
+
+            - Supports URL redirection and forwarding.
+            
+            Example: 
+            
+                - Redirect to another URL:
+
+                    RedirectController.class:
+
+                        ```
+                            @Controller
+                            public class RedirectController {
+
+                                @GetMapping("/redirect")
+                                public String redirectToGoogle() {
+                                    return "redirect:https://www.google.com";
+                                }
+                            }
+                        ```
+
+                - Forward to another view:
+
+                    ForwardController.class:
+
+                        ```
+                            @Controller
+                            public class ForwardController {
+
+                                @GetMapping("/forward")
+                                public String forwardToHome() {
+                                    return "forward:/home";
+                                }
+                            }
+                        ```
+
+        (6) REST API Conversion (via @RestController):
+
+            - @RestController extends @Controller and enables automatic JSON/XML responses.
+
+            - Unlike @Controller, @RestController automatically applies @ResponseBody to all methods.
+            
+            Example:
+
+                ProductRestController.class:
+
+                    ```
+                        @RestController
+                        @RequestMapping("/api")
+                        public class ProductRestController {
+
+                            @GetMapping("/products")
+                            public List<String> getProducts() {
+                                return Arrays.asList("Laptop", "Phone", "Tablet");
+                            }
+                        }
+                    ```
+                    
+________________________________________________________________________________________________________________________
+
