@@ -1,1 +1,531 @@
+*   What are various Spring Context annotations ?
 
+>>  Spring 'org.springframework.context.annotation' package provides several annotations for configuring and managing 
+    the Spring ApplicationContext:
+
+        (1) Configuration
+        (2) ComponentScan
+        (3) ComponentScans
+        (4) Bean
+        (5) DependsOn
+        (6) Scope
+        (7) ReflectiveScan
+        (8) Role
+        (9) PropertySources
+        (10) PropertySource
+        (11) Conditional
+        (12) Description
+        (13) Profile
+        (14) Primary
+        (15) Lazy
+        (16) ImportRuntimeHints
+        (17) ImportResource
+        (18) Fallback
+        (19) EnableMBeanExport
+        (20) EnableLoadTimeWeaving
+        (21) EnableAspectJAutoProxy
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Configuration annotation in detail.
+
+>>  The @Configuration annotation marks a class as a source of bean definitions which is an alternative to the traditional 
+    XML-based configuration in Spring.
+
+    It works in conjunction with @ComponentScan, @PropertySource, @Import, etc.
+
+    How @Configuration Works:
+
+        - Spring processes @Configuration classes by reading the @Bean methods and registering the returned objects as 
+          Spring-managed beans.
+
+        Example:
+
+            - The AppConfig class is a configuration class.
+
+            - The getMyService method defines a bean of type MyService.
+
+            - Spring will automatically register this bean in the application context.
+
+            ```
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.context.annotation.Configuration;
+
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    public MyService getMyService() {
+                        return new MyService();
+                    }
+                }
+            ```
+
+    Key Features:
+
+        (a) Works with @Bean:
+            
+            - Methods inside @Configuration classes can be annotated with @Bean to register Spring beans.
+
+            Example:
+
+                - The dataSource method registers a DataSource bean.
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            public DataSource dataSource() {
+                                return new DataSource();
+                            }
+                        }
+                    ```
+
+        (b) Ensures Singleton Behavior:
+
+            - Beans declared in @Configuration classes are singletons by default.
+            
+            - Spring ensures that the same instance is returned for multiple calls.
+
+            Example:
+
+                - Even if myService() is called multiple times, the same instance is used.
+
+                ```
+                    @Configuration
+                    public class AppConfig {
+
+                        @Bean
+                        public MyService myService() {
+                            return new MyService();
+                        }
+                    }
+                ```
+
+        (c) Combines with @ComponentScan:
+
+            - @Configuration can be used with @ComponentScan to automatically scan and register components.
+
+            Example:
+
+                - Scans 'com.example' for @Component, @Service, @Repository, etc.
+
+                ```
+                    @Configuration
+                    @ComponentScan(basePackages = "com.example")
+                    public class AppConfig {
+                    }
+                ```
+
+        (d) Import Other Configuration Classes:
+
+            - Use @Import to import another configuration class.
+
+            Example:
+
+                - This imports bean definitions from DatabaseConfig
+
+                ```
+                    @Configuration
+                    @Import(DatabaseConfig.class)
+                    public class AppConfig {
+                    }
+                ```
+        (e) Use with @PropertySource:
+
+            - Load external property files.
+
+            Example:
+
+                ```
+                    @Configuration
+                    @PropertySource("classpath:application.properties")
+                    public class AppConfig {
+                    }
+                ```
+
+        (f) Support for Conditional Beans:
+
+            - Use @Conditional to register beans based on conditions.
+
+            Example:
+
+                ```
+                    @Bean
+                    @Conditional(DatabaseCondition.class)
+                    public DataSource dataSource() {
+                        return new DataSource();
+                    }
+                ```
+        (g) Allows Proxy-Based Enhancement (@Configuration vs @Component):
+
+            - @Configuration classes use CGLIB proxies to maintain singleton behavior.
+            
+            - If you use @Component instead of @Configuration, the singleton guarantee is lost.
+            
+            Example:
+
+                - myService() is called twice, but Spring ensures only one instance is created.
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            public MyService myService() {
+                                return new MyService();
+                            }
+
+                            @Bean
+                            public AnotherService anotherService() {
+                                return new AnotherService(myService()); // Uses the proxy to ensure singleton
+                            }
+                        }
+                    ```
+
+                - If You Use @Component, myService() is called twice, creating two different instances.
+
+                    ```
+                        @Component
+                        public class AppConfig {
+
+                            @Bean
+                            public MyService myService() {
+                                return new MyService();
+                            }
+
+                            @Bean
+                            public AnotherService anotherService() {
+                                return new AnotherService(myService()); // Creates a new instance
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @ComponentScan annotation in detail.
+
+>>  The @ComponentScan annotation allows Spring to automatically detect and register beans that are annotated with 
+    stereotype annotations such as: @Component, @Service, @Repository, @Controller and @RestController.
+
+    How @ComponentScan Works:
+
+        - When Spring starts up, it looks for classes annotated with component annotations within the specified 
+            package and registers them as Spring beans.
+
+        Example:
+
+            - This tells Spring to scan the 'com.example.services' package and register all beans found.
+
+            AppConfig.class:
+
+                ```
+                    @Configuration
+                    @ComponentScan("com.example.services")
+                    public class AppConfig {
+                    }
+                ```
+        
+    Key Attributes:
+
+        (a) basePackages: 
+        
+            - Specifies one or more packages to scan.
+
+            Example:
+
+                - Scans 'com.example.services' and 'com.example.repositories' for beans.
+
+                ```
+                    @Configuration
+                    @ComponentScan(basePackages = {"com.example.services", "com.example.repositories"})
+                    public class AppConfig {
+                    }
+                ```
+        
+        (b) basePackageClasses: 
+        
+            - Alternative to basePackages, it uses class references instead of package names.
+
+            Example:
+
+                ```
+                    @Configuration
+                    @ComponentScan(basePackageClasses = MyService.class)
+                    public class AppConfig {
+                    }
+                ```
+        
+        (c) excludeFilters:	
+        
+            - Excludes specific components from being scanned.
+
+            Example:
+
+                - Excludes components annotated with @Deprecated.
+
+                ```
+                    @Configuration
+                    @ComponentScan(
+                        basePackages = "com.example",
+                        excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Deprecated.class)
+                    )
+                    public class AppConfig {
+                    }
+                ```
+
+        (d) includeFilters:	
+        
+            - Includes specific components for scanning.
+
+            Example:
+
+                - Only scans and registers beans annotated with @Service.
+
+                ```    
+                    @Configuration
+                    @ComponentScan(
+                        basePackages = "com.example",
+                        includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Service.class)
+                    )
+                    public class AppConfig {
+                    }
+                ```
+
+        (e) lazyInit: 
+        
+            - If true, beans are lazily initialized instead of eagerly.
+
+________________________________________________________________________________________________________________________
+
+*   Explain @ComponentScans annotation in detail.
+
+>>  The @ComponentScans annotation is a container for multiple @ComponentScan annotations to define multiple separate 
+    scanning configurations.
+
+    Example:
+
+        - This scans both 'com.example.service' and 'com.example.repository'
+
+            ```
+                @Configuration
+                @ComponentScans({
+                    @ComponentScan("com.example.service"),
+                    @ComponentScan("com.example.repository")
+                })
+                public class AppConfig {
+                }
+            ```
+
+        - Instead of using @ComponentScans, one can use below to achieve same result.
+
+            ```
+                @Configuration
+                @ComponentScan({"com.example.service", "com.example.repository"})
+                public class AppConfig {
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Bean annotation in detail.
+
+>>  The @Bean annotation is used in Spring Context to explicitly declare a bean definition. 
+
+    It is a direct replacement for XML <bean> definitions and works inside @Configuration classes.
+
+    It differs from @Component, which relies on component scanning but @Bean doesn't.
+
+    How @Bean Works:
+
+        - Spring calls the method annotated with @Bean, and the return value is registered as a Spring Bean.
+
+        Example:
+
+            AppConfig.class:
+
+                - The getMyService method creates a bean of type MyService.
+
+                - Spring registers it in the application context.
+
+                ```
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+
+                    @Configuration
+                    public class AppConfig {
+
+                        @Bean
+                        public MyService getMyService() {
+                            return new MyService();
+                        }
+                    }
+                ```
+    Key Features:
+    
+        (1) Works Inside @Configuration Classes:
+
+            - @Bean should be placed inside a @Configuration class.
+
+            Example:
+
+                AppConfig.class:
+                    
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            public DataSource dataSource() {
+                                return new DataSource();
+                            }
+                        }
+                    ```
+
+        (2) Supports Dependency Injection:
+
+            - Beans can depend on other beans, and Spring will automatically resolve dependencies.
+
+            Example:
+
+                - The UserRepository bean depends on DataSource, and Spring injects it if there is a DataSource bean in 
+                  the ApplicationContext.
+                  
+                - In this case, there is a DataSource bean will be created by method dataSource.
+
+                AppConfig.class:
+                    
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            public DataSource dataSource() {
+                                return new DataSource();
+                            }
+
+                            @Bean
+                            public UserRepository userRepository(DataSource dataSource) {
+                                return new UserRepository(dataSource);
+                            }
+                        }
+                    ```
+
+        (3) Singleton by Default:
+
+            - Beans are singleton by default, meaning Spring creates only one instance.
+
+            - But you can specify different scopes using @Scope.
+
+            Example:
+
+                - Even if myService() is called multiple times, Spring ensures only one instance is used.
+
+                - But for myDataSource(), a new instance will be created every time the method is called.
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+                            
+                            @Bean
+                            public MyService myService() {
+                                return new MyService();
+                            }
+
+                            @Bean
+                            @Scope("prototype")  // Creates a new instance each time
+                            public MyDataSource myDataSource() {
+                                return new MyDataSource();
+                            }
+                        }
+                    ```
+            
+        (4️) Supports Custom Initialization and Destruction Methods:
+
+            - @Bean can define methods that should be called during initialization and destruction.
+
+            - @Component doesn't support defining custom Initialization and Destruction methods.
+
+            Example:
+
+                - initMethod="init" sets the method as intializing method which will be called after the bean is created.
+                
+                - destroyMethod="cleanup" sets the method as destroy method which will be Called before the bean is destroyed.
+
+                DataSource.class:
+
+                    ```    
+                        public class DataSource {
+
+                            public DataSource() {
+                                System.out.println("DataSource Constructor: Bean Created");
+                            }
+
+                            // Initialization logic
+                            public void init() {
+                                System.out.println("DataSource init(): Initialization logic called");
+                            }
+
+                            // Destruction logic
+                            public void cleanup() {
+                                System.out.println("DataSource cleanup(): Cleanup logic called");
+                            }
+                        }
+                    ```
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+                            
+                            @Bean(initMethod = "init", destroyMethod = "cleanup")
+                            public DataSource dataSource() {
+                                return new DataSource();
+                            }
+                        }
+                    ```
+    
+        (5) Supports Conditional Beans:
+
+            - Beans can be conditionally registered using @Conditional.
+
+            Example:
+
+                - This bean is created only if DatabaseCondition is satisfied.
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+                            
+                            @Bean
+                            @Conditional(DatabaseCondition.class)
+                            public DataSource dataSource() {
+                                return new DataSource();
+                            }
+                        }
+                    ```
+                
+                DatabaseCondition.class:
+                
+                    ```
+                        public class DatabaseCondition implements Condition {
+
+                            @Override
+                            public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+                               
+                                // Read property "use.database" from application properties
+                                String useDatabase = context.getEnvironment().getProperty("use.database");
+
+                                // Return true if property is "true"
+                                return "true".equalsIgnoreCase(useDatabase);
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
