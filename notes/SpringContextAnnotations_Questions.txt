@@ -9,15 +9,15 @@
         (4) Bean
         (5) DependsOn
         (6) Scope
-        (7) ReflectiveScan
+        (7) Lazy 
         (8) Role
-        (9) PropertySources
-        (10) PropertySource
+        (9) Primary
+        (10) Profile
         (11) Conditional
         (12) Description
-        (13) Profile
-        (14) Primary
-        (15) Lazy
+        (13) PropertySource
+        (14) PropertySources
+        (15) ReflectiveScan
         (16) ImportRuntimeHints
         (17) ImportResource
         (18) Fallback
@@ -362,6 +362,7 @@ ________________________________________________________________________________
                         }
                     }
                 ```
+
     Key Features:
     
         (1) Works Inside @Configuration Classes:
@@ -529,3 +530,953 @@ ________________________________________________________________________________
                     ```
 
 ________________________________________________________________________________________________________________________
+
+*   Explain @DependsOn annotation in detail.
+
+>>  The @DependsOn annotation in Spring is used to tell the container that the annotated bean depends on the initialization 
+    of one or more other beans.
+
+    It is not for dependency injection, but only for ensuring a specific order of bean initialization.
+
+    How @DependsOn Works:
+
+        - It instructs Spring that a particular bean must be initialized only after other specific beans have been initialized.
+        
+        - It can be used on class-level beans like @Component, @Service, @Repository, or on @Bean methods inside 
+          @Configuration classes.
+
+    Example:
+
+        - The @DependsOn("initBean") on myService() ensures initBean() is created before myService().
+
+        - Here 'initBean' is the name/ID of the bean.
+
+        - If you don’t explicitly name the bean, Spring uses the method name or class name (camelCase) as the default 
+          bean name.
+
+        AppConfig.class:
+
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    public Initializer initBean() {
+                        return new Initializer();
+                    }
+
+                    @Bean
+                    @DependsOn("initBean")
+                    public MyService myService() {
+                        return new MyService();
+                    }
+                }
+            ```
+
+    Key Features:
+
+        (1) Works on @Bean Methods and @Component Classes:
+
+            - @DependsOn can be placed on @Bean methods or on class-level annotations like @Component.
+            
+            Example:
+
+                - On @Bean at the method level.
+                
+                AppConfig.class:
+                    
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean(name = "setupBean")
+                            public SetupBean setupBean() {
+                                return new SetupBean();
+                            }
+
+                            @Bean
+                            @DependsOn("setupBean")
+                            public UserService userService() {
+                                return new UserService();
+                            }
+                        }
+                    ```
+
+            Example:
+
+                - On @Component at the class level.
+                
+                - If ProductService doesn’t directly use CacheManager, but you still want to ensure CacheManager is ready first, @DependsOn is the right way.
+
+                CacheManager.class:
+
+                    ```
+                        @Component("cacheManager")
+                        public class CacheManager {
+                            public CacheManager() {
+                                System.out.println("CacheManager initialized");
+                            }
+                        }
+                    ```
+
+                ProductService.class:
+
+                    ```
+                        @Component
+                        @DependsOn("cacheManager")
+                        public class ProductService {
+                            public ProductService() {
+                                System.out.println("ProductService initialized");
+                            }
+                        }
+                    ```
+
+        (2) Can Depend on Multiple Beans:
+
+            - You can define multiple dependencies.
+
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            @DependsOn({"beanA", "beanB", "beanC"})
+                            public MasterService masterService() {
+                                return new MasterService();
+                            }
+                        }
+                    ```
+          
+        (3) Works in Combination with Other Annotations:
+
+            - Can be combined with @Scope, @Primary, @Lazy, etc.
+            
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            @Scope("prototype")
+                            @DependsOn("configBean")
+                            public TaskHandler taskHandler() {
+                                return new TaskHandler();
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Scope annotation in detail.
+
+>>  The @Scope annotation in Spring is used to define the scope of a Spring bean, i.e., how and when a new instance of a 
+    bean should be created and returned by the Spring container.
+
+    By default, all Spring beans are Singleton scoped, meaning only one instance per Spring container is created.
+
+    With @Scope, we can instruct Spring to create beans in different scopes like prototype, request, session, application, etc.
+
+    How @Scope Works:
+        
+        - Spring checks the @Scope value and creates beans based on the defined scope.
+        
+        - It works on @Bean methods inside @Configuration classes as well as Class-level annotations like @Component, 
+          @Service, @Repository.
+
+    Example:
+
+        - Each time myService() is accessed, a new instance is returned (because it’s prototype scoped).
+        
+        AppConfig.class:
+
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    @Scope("prototype")
+                    public MyService myService() {
+                        return new MyService();
+                    }
+                }
+            ```
+
+    Key Features:
+
+        (1) Works with @Bean and @Component:
+            
+            - You can use @Scope both:
+
+                - on @Bean methods inside @Configuration classes.
+
+                - on @Component classes (or @Service, @Repository).
+            
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            @Scope("prototype")
+                            public TaskProcessor taskProcessor() {
+                                return new TaskProcessor();
+                            }
+                        }
+                    ```
+
+                EmailSender.class:
+                    
+                    ```
+                        @Component
+                        @Scope("prototype")
+                        public class EmailSender {
+                            // a new instance every time it's requested
+                        }
+                    ```
+
+        (2) Supported Scopes in Spring (Core & Web):
+            
+            (a) singleton (default): Single instance for entire container
+            (b) prototype: New instance for every request
+            (c) request (web only): One instance per HTTP request
+            (d) session (web only):	One instance per HTTP session
+            (c) application (web only):	One instance per ServletContext
+            (d) websocket (web only): One instance per WebSocket session
+
+        (3) Works with Custom Scopes (Advanced):
+            
+            - Spring allows you to create custom scopes if required.
+            
+            - You can register a scope with ConfigurableBeanFactory.registerScope().
+
+        (4) Works with Lazy Initialization:
+
+            - You can combine @Scope("prototype") with @Lazy to prevent early bean creation.
+
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            @Scope("prototype")
+                            @Lazy
+                            public ReportGenerator reportGenerator() {
+                                return new ReportGenerator();
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Lazy annotation in detail.
+
+>>  The @Lazy annotation in Spring is used to delay the initialization of a Spring bean until it is actually needed.
+
+    By default, Spring initializes all singleton beans eagerly at the time of ApplicationContext startup, even if they 
+    are not yet required. But with @Lazy, Spring will create the bean only when it is first requested.
+
+    For prototype beans, lazy has no effect — prototype beans are already created only on demand.
+ 
+    How @Lazy Works:
+        
+        - Spring marks the bean as lazily initialized.
+        
+        - The bean will not be created at startup.
+        
+        - It will be instantiated only on first access (i.e., getBean() or autowiring).
+         
+    Example:
+        
+        AppConfig.class:
+
+            AppConfig.class:
+
+                ```
+                    @Configuration
+                    public class AppConfig {
+
+                        @Bean
+                        @Lazy
+                        public ExpensiveService expensiveService() {
+                            return new ExpensiveService(); // created only when needed
+                        }
+                    }
+                ```
+
+            ExpensiveService.class:
+
+                ```
+                    public class ExpensiveService {
+                        public ExpensiveService() {
+                            System.out.println("ExpensiveService constructor called!");
+                        }
+                    }
+                ```
+            
+            Main.class:
+
+                ```
+                    // At this point, ExpensiveService is NOT created
+                    ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                
+                    // Now, the bean gets created
+                    ExpensiveService service = context.getBean(ExpensiveService.class);
+                ```
+
+    Key Features:
+
+        (1) Used on @Autowired injection points:
+            
+            - You can lazy-load a dependency at the injection point, even if the bean itself is not marked lazy.
+
+            Example:
+
+                - In this case, if UserService bean is not marked as lazy then Spring will create it but here it will be 
+                  initialized only when first accessed inside UserController.    
+
+                UserController.class:
+
+                    ```
+                        @Component
+                        public class UserController {
+
+                            @Autowired
+                            @Lazy
+                            private UserService userService;
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Role annotation in detail.
+
+>>  The @Role annotation in Spring is used to assign a role or category to a Spring bean definition, indicating how the 
+    bean is intended to be used in the application context.
+
+    It’s mainly used for framework-level metadata tagging, not for bean functionality or business logic.
+
+    Framework author Tag internal infrastructure beans for better documentation.
+
+    How @Role Works:
+        
+        - Spring internally uses @Role to categorize beans in the BeanDefinition.
+        
+        - It helps tools or configuration viewers (like Spring IDEs or metadata analyzers) understand the purpose of a bean.
+        
+        - It does not affect the bean lifecycle or functionality directly.
+
+    @Role Constants:
+
+        - Spring provides three predefined role constants in org.springframework.beans.factory.config.BeanDefinition:
+
+            (a) ROLE_APPLICATION (0) (Default):
+            	
+                -  Bean is a typical application-level bean, meant for general business logic.
+                
+            (b) ROLE_SUPPORT (1):
+
+            	- Bean is a supporting bean, often used internally by other application beans.
+
+            (c) ROLE_INFRASTRUCTURE (2):
+            	
+                - Bean is part of framework infrastructure, like proxies, AOP advisors, message listeners, etc.
+
+    Example:
+
+        - UserService is marked as an application-level bean.
+
+        - AuditHelper is a support bean, used internally.
+        
+        - MyCustomBeanPostProcessor is a framework infrastructure bean.
+
+        AppConfig.class:
+            
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    @Role(BeanDefinition.ROLE_APPLICATION)
+                    public UserService userService() {
+                        return new UserService();
+                    }
+
+                    @Bean
+                    @Role(BeanDefinition.ROLE_SUPPORT)
+                    public AuditHelper auditHelper() {
+                        return new AuditHelper();
+                    }
+
+                    @Bean
+                    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+                    public BeanPostProcessor customBeanPostProcessor() {
+                        return new MyCustomBeanPostProcessor();
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Primary annotation in detail.
+
+>>  The @Primary annotation in Spring is used to mark a bean as the default choice for autowiring when multiple candidates 
+    of the same type are available in the Spring container.
+
+    It helps resolve ambiguity in dependency injection when multiple beans of the same type exist.
+
+    Only one bean of a type should be marked @Primary else Spring will throw an error.
+
+    @Primary does not work for collections or maps injection — in those cases, Spring injects all matching beans.
+
+    How @Primary Works:
+
+        - If there are multiple beans of the same type, and Spring doesn’t know which one to inject, it throws an exception.
+        
+        - When one of them is marked with @Primary, Spring will prefer that bean for autowiring unless another bean is 
+          specifically qualified using @Qualifier.
+
+    Example:
+        
+        - Without using @Primary will throw an ambiguity error: No unique bean of type DataSource found.
+
+        AppConfig.class:
+
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    public DataSource mysqlDataSource() {
+                        return new MySQLDataSource();
+                    }
+
+                    @Bean
+                    public DataSource postgresDataSource() {
+                        return new PostgresDataSource();
+                    }
+
+                    @Bean
+                    public UserRepository userRepository(DataSource dataSource) {
+                        // Ambiguity: which DataSource to inject?
+                        return new UserRepository(dataSource);
+                    }
+                }
+            ```
+            
+        - When using @Primary, dependencies are resolved automatically even if multiple bean of same type is available.
+
+        AppConfig.class:
+
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    @Primary
+                    public DataSource mysqlDataSource() {
+                        return new MySQLDataSource();
+                    }
+
+                    @Bean
+                    public DataSource postgresDataSource() {
+                        return new PostgresDataSource();
+                    }
+
+                    @Bean
+                    public UserRepository userRepository(DataSource dataSource) {
+                        // mysqlDataSource will be injected automatically
+                        return new UserRepository(dataSource);
+                    }
+                }
+            ```
+
+    Key Features:
+
+        (1) Can still override using @Qualifier:
+
+            - Even if a bean is marked @Primary, you can override it with @Qualifier.
+
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        public class AppConfig {
+
+                            @Bean
+                            @Primary
+                            public DataSource mysqlDataSource() {
+                                return new MySQLDataSource();
+                            }
+
+                            @Bean
+                            public DataSource postgresDataSource() {
+                                return new PostgresDataSource();
+                            }
+
+                            @Bean
+                            public UserRepository userRepository(@Qualifier("postgresDataSource") DataSource dataSource) {
+                                // Postgres DataSource will be injected because of the @Qualifier
+                                return new UserRepository(dataSource);
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Profile annotation in detail.
+
+>>  The @Profile annotation is used to conditionally enable beans or configuration classes based on the active environment 
+    profile.
+
+    It helps in creating environment-specific beans like dev, test, prod, etc., and only loads the relevant beans as per 
+    the active profile.
+
+    If no profile is active, then only beans without @Profile annotation are loaded.
+
+    How @Profile Works:
+
+        - You define different beans or configurations with specific @Profile values (like "dev", "prod").
+        
+        - When the application starts, Spring only loads the beans/configurations that match the currently active profile.
+ 
+    Example:
+    
+        - Define Beans for Different Profiles.
+
+        - Only one of devDataSource() or prodDataSource() will be registered depending on the active profile.
+
+        DataSourceConfig.class:
+
+            ```
+                @Configuration
+                public class DataSourceConfig {
+
+                    @Bean
+                    @Profile("dev")
+                    public DataSource devDataSource() {
+                        return new DevDataSource();
+                    }
+
+                    @Bean
+                    @Profile("prod")
+                    public DataSource prodDataSource() {
+                        return new ProdDataSource();
+                    }
+                }
+            ```
+
+    How to Activate a Profile:
+
+        (1) Using application.properties or application.yml:
+
+            application.properties
+                
+                ```
+                    spring.profiles.active=dev
+                ```
+
+        (2) As a JVM Argument:
+
+            ```
+                -Dspring.profiles.active=prod
+            ```
+
+        (3) Programmatically:
+
+            Main.class:
+                
+                ```
+                    ConfigurableEnvironment env = context.getEnvironment();
+                    env.setActiveProfiles("test");
+                ```
+    
+    Key Features:
+
+        (1) Can be used on @Component or @Service classes:
+
+            ProdEmailService.class:
+
+                ```
+                    @Profile("prod")
+                    @Service
+                    public class ProdEmailService implements EmailService {
+                        // Production implementation
+                    }
+                ```
+
+        (2) Can be used on @Configuration classes:
+
+            DevConfig.class:
+
+                ```
+                    @Configuration
+                    @Profile("dev")
+                    public class DevConfig {
+                        // Only loaded in dev profile
+                    }
+                ```
+
+        (3) Can define multiple profiles for a bean:
+
+            AppConfig.class:
+
+                ```
+                    @Configuration
+                    public class AppConfig {
+
+                        @Bean
+                        @Profile({"dev", "test"})
+                        public CacheService cacheService() {
+                            return new InMemoryCacheService();
+                        }
+                    }
+                ```
+
+        (4) Can define default profiles:
+
+            application.properties
+
+                ```
+                    spring.profiles.default=dev
+                ```
+    
+________________________________________________________________________________________________________________________
+
+*   Explain @Conditional annotation in detail.
+
+>>  The @Conditional allows developers to write custom logic to decide whether a bean or configuration class should be 
+    registered in ApplicationContext or not.
+
+    How @Conditional Works:
+
+        - You write a custom class that implements the Condition interface.
+        
+        - You annotate a @Bean method, @Configuration class, or @Component class with @Conditional(YourCondition.class).
+        
+        - Spring invokes the matches() method in your Condition class at runtime.
+
+        - If matches() returns true, the bean/config is registered. If false, it's skipped.
+
+    Example:
+    
+        - Conditionally create Bean Based on Property.
+
+        - If 'use.database=true' in application.properties, the dataSource bean will be created. Otherwise, it will not 
+          be registered.
+
+        Condition.class:
+
+            ```
+                import org.springframework.context.annotation.Condition;
+                import org.springframework.context.annotation.ConditionContext;
+                import org.springframework.core.type.AnnotatedTypeMetadata;
+
+                public class DatabaseCondition implements Condition {
+
+                    @Override
+                    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+                        String useDatabase = context.getEnvironment().getProperty("use.database");
+                        return "true".equalsIgnoreCase(useDatabase);
+                    }
+                }
+            ```
+
+        AppConfig.class:
+
+            ```
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    @Conditional(DatabaseCondition.class)
+                    public DataSource dataSource() {
+                        return new DataSource();
+                    }
+                }
+            ```
+
+    Key Features:
+
+        (1) Can be used on @Configuration or @Component classes:
+
+            AppConfig.class:
+                
+                ```
+                    @Configuration
+                    @Conditional(MyCondition.class)
+                    public class AppConfig {
+                        // All beans in this config will be included only if condition passes
+                    }
+                ```
+
+            EmailService.class:
+            
+                ```
+                    @Component
+                    @Conditional(MyCondition.class)
+                    public class EmailService {
+                        // Registered only if condition is met
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Description annotation in detail.
+
+>>  The @Description annotation is used to provide a human-readable description for a Spring-managed bean or configuration 
+    class.
+
+    It is mainly used for documentation or metadata purposes, so that the Spring context can display the purpose of a 
+    bean/configuration class.
+
+    How @Description Works:
+
+        - It stores a text description to a @Bean method or a @Configuration class in the Spring BeanDefinition metadata.
+        
+        - It does not affect the behavior of the bean — it's purely for documentation and tooling.
+        
+        - Useful when generating documentation, debugging, or understanding the context configuration more clearly.
+
+    Example:
+
+        AppConfig.class:
+
+            ```
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Description;
+
+                @Configuration
+                public class AppConfig {
+
+                    @Bean
+                    @Description("This bean provides core functionality for user authentication service.")
+                    public AuthService authService() {
+                        return new AuthService();
+                    }
+                }
+            ```
+
+        SecurityConfig.class:
+        
+            ```
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Description;
+
+                @Configuration
+                @Description("Configuration class responsible for setting up security-related beans.")
+                public class SecurityConfig {
+                    
+                    // Beans related to security
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @PropertySource annotation in detail. 
+
+>>  The @PropertySource annotation is used to declare a '.properties' file as a source of configuration values.
+
+    It allows Spring’s Environment abstraction to load and resolve property values (used via @Value, 
+    Environment.getProperty(), etc.) from external '.properties' files.
+
+    It only supports '.properties' files and not '.yaml' files — for that use @PropertySourceFactory with custom logic.
+    
+    Additonally, it cannot override already existing properties unless loaded earlier in the context.
+
+    How @PropertySource Works:
+
+        - It is placed on a @Configuration class.
+
+        - It tells Spring where to find an external properties file and loads it into the Spring Environment.
+        
+        - The properties can then be injected using @Value or accessed programmatically.
+    
+    Example:
+
+        application.properties:
+
+            ```
+                app.name=MySpringApp
+            ```
+
+        AppConfig.class:
+
+            ```
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.PropertySource;
+
+                @Configuration
+                @PropertySource("classpath:application.properties")
+                public class AppConfig {
+                    // Spring will load all key-value pairs from application.properties
+                }
+            ```
+
+        MyService.class:
+
+            ```                
+                import org.springframework.beans.factory.annotation.Value;
+                import org.springframework.stereotype.Component;
+
+                @Component
+                public class MyService {
+
+                    @Value("${app.name}") // Using @Value to Inject Property Values
+                    private String appName;
+
+                    public void printAppName() {
+                        System.out.println("App Name: " + appName);
+                    }
+                }
+            ```
+    
+    Key Features:
+
+        (1) Supports loading multiple property files:
+
+            - You can specify multiple property files in a single @PropertySource or use multiple @PropertySource annotations.
+
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        @PropertySource({"classpath:db.properties", "classpath:application.properties"})
+                        public class AppConfig {
+                            // Both property files are loaded into the Environment
+                        }
+                    ```
+
+        (2) Supports loading properties from external file system locations:
+
+            - Property files can also be loaded from external locations, outside the classpath.
+            
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        @PropertySource("file:/opt/config/custom.properties")
+                        public class AppConfig {
+                            // Loads custom.properties from absolute path
+                        }
+                    ```
+
+        (3) Supports optional loading using ignoreResourceNotFound=true:
+
+            - If a property file is not guaranteed to be present, you can prevent errors using ignoreResourceNotFound.
+                
+            Example:    
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        @PropertySource(value = "classpath:optional.properties", ignoreResourceNotFound = true)
+                        public class AppConfig {
+                            // If optional.properties doesn't exist, Spring won't fail
+                        }
+                    ```
+
+        (4) Properties become accessible via Environment API:
+
+            - The loaded properties can also be accessed programmatically using Spring’s Environment interface.
+
+            Example:
+
+                AppConfig.class:
+
+                    ```
+                        @Configuration
+                        @PropertySource("classpath:application.properties")
+                        public class AppConfig implements EnvironmentAware {
+
+                            private Environment env;
+
+                            @Override
+                            public void setEnvironment(Environment environment) {
+                                this.env = environment;
+                            }
+
+                            @PostConstruct
+                            public void printAppInfo() {
+                                System.out.println("App Name: " + env.getProperty("app.name"));
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @PropertySources annotation in detail. 
+
+>>  The @PropertySources annotation is used to declare multiple @PropertySource annotations in a single place. 
+ 
+    Instead of writing multiple @PropertySource annotations separately, you can group them inside @PropertySources.
+
+    Rest of the features are similar to @PropertySource.
+
+    How @PropertySources Works:
+        
+        - When the Spring container starts and processes a class annotated with @Configuration, it evaluates all 
+          @PropertySource annotations inside @PropertySources.
+
+        - Each property file specified is loaded into the Environment, making the properties available for Spring Application. 
+
+        - If a key is repeated across files, the last loaded file overrides earlier values.
+    
+    Example:
+
+        AppConfig.class:
+
+            ```
+                @Configuration
+                @PropertySources({
+                    @PropertySource("classpath:db.properties"),
+                    @PropertySource("classpath:application.properties")
+                })
+                public class AppConfig {
+                    // Both db.properties and application.properties are loaded
+                }
+            ```
+
+            - This is equivalent to:
+
+            ```
+                @Configuration
+                @PropertySource("classpath:db.properties")
+                @PropertySource("classpath:application.properties")
+                public class AppConfig {
+                }
+            ```
+
+    Key Features:
+       
+        (1) Works on @Configuration classes
+            
+            - @PropertySources can only be used on @Configuration classes, ensuring that property files are loaded during 
+              context initialization.
+        
+________________________________________________________________________________________________________________________
+
+
+
+
