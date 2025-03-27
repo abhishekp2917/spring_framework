@@ -17,9 +17,9 @@
         (12) Description
         (13) PropertySource
         (14) PropertySources
-        (15) ReflectiveScan
+        (15) ImportResource
         (16) ImportRuntimeHints
-        (17) ImportResource
+        (17) ReflectiveScan
         (18) Fallback
         (19) EnableMBeanExport
         (20) EnableLoadTimeWeaving
@@ -1476,6 +1476,451 @@ ________________________________________________________________________________
               context initialization.
         
 ________________________________________________________________________________________________________________________
+
+*   Explain @ImportResource annotation in detail. 
+
+>>  The @ImportResource is used to import traditional Spring XML configuration files into a Java-based configuration context.
+
+    This annotation allows Spring to load bean definitions from XML files alongside Java-based @Configuration classes.
+
+    It is extremely useful when migrating legacy applications from XML-based Spring configuration to Java-based 
+    configuration, allowing coexistence of both.
+
+    Key Features:
+
+        (1) Allows mixing XML-based and Java-based configuration
+            
+            application-context.xml:
+
+                ```
+                    <beans xmlns="http://www.springframework.org/schema/beans"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+                        <bean id="myService" class="com.example.MyService"/>
+                    </beans>
+                ```
+
+            AppConfig.java:
+
+                ```
+                    @Configuration
+                    @ImportResource("classpath:application-context.xml")
+                    public class AppConfig {
+                        // Beans from application-context.xml will be registered in Spring context
+                    }
+                ```
+            
+        (2) Supports Multiple XML Configuration Files:
+
+            application-context.xml:
+
+                ```
+                    <bean id="myService" class="com.example.MyService"/>
+                ```
+
+            database-config.xml
+                    
+                ```
+                    <bean id="dbService" class="com.example.DatabaseService"/>
+                ```
+
+            AppConfig.java
+
+                ```
+                    @Configuration
+                    @ImportResource({
+                        "classpath:application-context.xml",
+                        "classpath:database-config.xml"
+                    })
+                    public class AppConfig { }
+                ```
+
+            Main.java
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                            DatabaseService db = context.getBean(DatabaseService.class);
+                            db.connect();
+                        }
+                    }
+                ```
+
+        (3) Supports File Paths: classpath, file system, relative
+                
+                AppConfig.java
+
+                    ```
+                        @Configuration
+                        @ImportResource({
+                            "classpath:application-context.xml",
+                            "file:/opt/config/external-config.xml"
+                        })
+                        public class AppConfig { }
+                    ```
+
+                external-config.xml
+                    
+                    ```
+                        <bean id="externalService" class="com.example.ExternalService"/>
+                    ```
+
+                Main.java
+
+                    ```
+                        import org.springframework.context.ApplicationContext;
+                        import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                        public class Main {
+                            public static void main(String[] args) {
+                                ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                                ExternalService service = context.getBean(ExternalService.class);
+                                service.run();
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @ImportRuntimeHints annotation in detail. 
+
+>>  The @ImportRuntimeHints is used for Ahead-of-Time (AOT) processing and native image generation, especially when 
+    using GraalVM.
+
+    It helps register runtime hints (like reflection, resource access, serialization, etc.) that are required at runtime, 
+    especially in native image environments, where such dynamic behavior is not automatically available.
+
+    When using native compilation (GraalVM), reflection and other runtime behaviors must be explicitly registered.
+    @ImportRuntimeHints allows developers to register such requirements declaratively using a RuntimeHintsRegistrar.
+
+    Key Features:
+            
+        (1) Used to Import Runtime Hints via RuntimeHintsRegistrar
+            
+            MyHintsRegistrar.java:
+
+                ```
+                    import org.springframework.aot.hint.RuntimeHints;
+                    import org.springframework.aot.hint.RuntimeHintsRegistrar;
+                    import org.springframework.aot.hint.TypeReference;
+
+                    public class MyHintsRegistrar implements RuntimeHintsRegistrar {
+
+                        @Override
+                        public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+                            hints.reflection().registerType(TypeReference.of(MyService.class), 
+                                hint -> hint.withMembers());
+                        }
+                    }
+                ```
+
+            AppConfig.java:
+
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.aot.hint.annotation.ImportRuntimeHints;
+
+                    @Configuration
+                    @ImportRuntimeHints(MyHintsRegistrar.class)
+                    public class AppConfig { }
+
+            
+            Main.java:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                            MyService service = context.getBean(MyService.class);  // Works fine in native image
+                            service.process();
+                        }
+                    }
+                ```
+
+        (2) Supports Multiple Hints Registrars
+            
+            AppConfig.java:
+
+                ```
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.aot.hint.annotation.ImportRuntimeHints;
+
+                    @Configuration
+                    @ImportRuntimeHints({MyHintsRegistrar.class, AnotherHintsRegistrar.class})
+                    public class AppConfig { }
+                ```
+
+            Main.java:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                            
+                            MyService myService = context.getBean(MyService.class);
+                            myService.process();
+
+                            AnotherService anotherService = context.getBean(AnotherService.class);
+                            anotherService.doWork();
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________    
+
+*   Explain @ReflectiveScan annotation in detail. 
+
+>>  It tells Spring that a particular class should be scanned for reflection metadata at build time, which is required 
+    in environments where reflection metadata is not automatically preserved, like AOT (Ahead-of-Time) or native image 
+    compilations.
+
+    This annotation is especially useful when you need certain classes to be available for reflection-based operations 
+    in native image runtime (like invoking constructors, accessing fields, calling methods, etc.), and Spring doesn’t 
+    automatically detect them.
+
+    How @ReflectiveScan Works:
+
+        - When Spring performs AOT processing (such as native image generation), it scans for this annotation and ensures 
+          that reflective metadata for the annotated class is registered in the native image configuration.   
+
+    Key Features:
+
+        (a) Helps Enable Reflection for Native Images:
+
+            - The MyModel class will be registered for reflection in native image builds.
+                        
+            MyModel.class:
+                
+                ```
+                    import org.springframework.context.annotation.ReflectiveScan;
+
+                    @ReflectiveScan
+                    public class MyModel {
+                        private String name;
+
+                        public MyModel() {}
+
+                        public String getName() {
+                            return name;
+                        }
+
+                        public void setName(String name) {
+                            this.name = name;
+                        }
+                    }
+                ```
+
+            - Registers classes so that constructors, methods, and fields are accessible reflectively in native image runtimes.
+                
+            Main.java
+
+                ```
+                    public class Main {
+                        public static void main(String[] args) throws Exception {
+                            Class<?> clazz = Class.forName("com.example.MyModel");
+                            Object obj = clazz.getDeclaredConstructor().newInstance();
+                            System.out.println("Instance created via reflection: " + obj);
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Fallback annotation in detail. 
+
+>>  The @Fallback annotation is used to define a fallback mechanism for method invocations, typically in fault-tolerant 
+    systems. 
+    
+    It allows developers to specify an alternative method or handler class to be called when the primary method fails, 
+    such as during an exception, timeout, or circuit breaker open state.
+
+    How @Fallback Works:
+
+        - When the primary business method throws an exception, times out, or fails due to resilience configuration, 
+          control is automatically passed to the fallback method or class defined using @Fallback.
+
+        - The fallback method should have the same signature (input parameters and return type) as the original method.
+
+    Example: 
+
+        - If greet("fail") is called, the fallbackGreet method will be invoked instead of failing the service.
+
+        ```
+            import org.eclipse.microprofile.faulttolerance.Fallback;
+            import javax.enterprise.context.ApplicationScoped;
+
+            public class GreetingService {
+
+                @Fallback(fallbackMethod = "fallbackGreet")
+                public String greet(String name) {
+                    if (name.equals("fail")) {
+                        throw new RuntimeException("Simulated failure");
+                    }
+                    return "Hello, " + name;
+                }
+
+                public String fallbackGreet(String name) {
+                    return "Hello from fallback, " + name;
+                }
+            }
+        ```
+    Key Features:
+
+        (a) Supports Fallback Handler Classes:
+
+            - You can also define a separate FallbackHandler class by implementing the FallbackHandler<T> interface.
+
+            Operation.class:
+
+                ```
+                    import org.eclipse.microprofile.faulttolerance.Fallback;
+                    import org.eclipse.microprofile.faulttolerance.FallbackHandler;
+
+                    public class Operation {
+
+                        @Fallback(MyFallbackHandler.class)
+                        public String riskyOperation() {
+                            throw new RuntimeException("Failed");
+                        }
+                    }
+                ```
+
+            MyFallbackHandler.class:
+
+                ```
+                    public class MyFallbackHandler implements FallbackHandler<String> {
+
+                        @Override
+                        public String handle(ExecutionContext context) {
+                            return "Handled by fallback handler";
+                        }
+                    }
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @EnableAspectJAutoProxy annotation in detail.  
+
+>>  The @EnableAspectJAutoProxy annotation is used in Spring AOP (Aspect-Oriented Programming) to enable support for 
+    AspectJ-style method interception. 
+    
+    It allows Spring to create proxy objects for beans annotated with @Aspect, enabling method interception and execution 
+    of cross-cutting concerns like logging, security, and transaction management.
+
+    How @EnableAspectJAutoProxy Works:
+
+        - When applied to a Spring configuration class, it enables proxy-based AOP for aspects defined using @Aspect annotations.
+        
+        - Spring automatically wraps beans with proxies to intercept method calls and apply advice (e.g., @Before, @After).
+        
+        - It supports two proxying mechanisms:
+            
+            - JDK Dynamic Proxy (default) – Used when the target class implements interfaces.
+            - CGLIB Proxy (if proxyTargetClass = true) – Used for proxying classes without interfaces.
+    
+    Example:
+
+        - Define the Target Service
+
+            MyService.class:
+
+                ```
+                    import org.springframework.stereotype.Service;
+
+                    @Service
+                    public class MyService {
+
+                        public void performTask() {
+                            System.out.println("Executing service method...");
+                        }
+                    }
+                ```
+
+        - Define an Aspect with Advice
+
+            - The @Before advice from LoggingAspect executes before performTask() of MyService class.
+            
+            - Spring automatically proxies MyService, allowing method interception.
+
+            LoggingAspect.class:
+
+                ```
+                    import org.aspectj.lang.annotation.Aspect;
+                    import org.aspectj.lang.annotation.Before;
+                    import org.springframework.stereotype.Component;
+
+                    @Aspect
+                    @Component
+                    public class LoggingAspect {
+
+                        @Before("execution(* com.example.service.*.*(..))")
+                        public void logBeforeMethod() {
+                            System.out.println("Logging before method execution...");
+                        }
+                    }
+                ```
+
+        - Enable AOP in Configuration
+
+            AppConfig.class:
+
+                ```
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.ComponentScan;
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+                    @Configuration
+                    @EnableAspectJAutoProxy // Enables proxy-based AOP
+                    @ComponentScan(basePackages = "com.example")
+                    public class AppConfig {
+
+                        @Bean
+                        public MyService myService() {
+                            return new MyService();
+                        }
+                    }
+                ```
+
+        - Run the Application
+
+            Main.class:
+
+                ```
+                    import org.springframework.context.ApplicationContext;
+                    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                            MyService service = context.getBean(MyService.class);
+                            service.performTask();
+                        }
+                    }
+                ```
+
+        - Output:
+
+            ```
+                Logging before method execution...
+                Executing service method...
+            ```
+
+________________________________________________________________________________________________________________________
+
+
+
 
 
 

@@ -1,0 +1,186 @@
+*   How Method Interception & Proxies work internally in Spring ?
+
+>>  When you use Spring AOP, Spring does not modify your actual class. Instead, it creates a proxy class object that wraps 
+    around your class and intercepts method calls.
+
+    How Proxies Work in Spring AOP:
+
+        - When a method is called, Spring does not directly execute it. Instead, it:
+
+        - It creates a proxy object that looks exactly like your original bean.
+
+        - Intercepts/handles the method call using this proxy.
+
+        - Runs additional logic (advice) before/after the method execution.
+
+        - Calls the actual method inside your original bean.
+
+    Two types of proxies to enable method interception:
+
+        (a) JDK Dynamic Proxy (Interface-Based Proxy):
+
+            - Used when the target class implements an interface.
+            
+            - Spring creates a proxy class implementing the same interface instead of modifying the target class itself.
+            
+            Example:
+
+                PaymentService.class (Interface):
+
+                    ```
+                        public interface PaymentService {
+                            void processPayment();
+                        }
+                    ```
+
+                CreditCardPaymentService.class (Target Class): 
+
+                    ```
+                        @Component
+                        public class CreditCardPaymentService implements PaymentService {
+                            @Override
+                            public void processPayment() {
+                                System.out.println("Processing payment...");
+                            }
+                        }
+                    ```
+
+                LoggingAspect.class:
+
+                    ```
+                        @Aspect
+                        @Component
+                        public class LoggingAspect {
+
+                            @Before("execution(* com.example.PaymentService.processPayment(..))")
+                            public void logBefore() {
+                                System.out.println("Logging: Before processing payment");
+                            }
+                        }
+                    ```
+
+                Generated Proxy Class (Conceptually)
+
+                    ```
+                        import java.lang.reflect.InvocationHandler;
+                        import java.lang.reflect.Method;
+                        import java.lang.reflect.Proxy;
+
+                        public class BankServiceProxy implements InvocationHandler {
+
+                            private final PaymentService target;
+
+                            public BankServiceProxy(PaymentService target) {
+                                this.target = target;
+                            }
+
+                            public static PaymentService newInstance(PaymentService target) {
+                                return (PaymentService) Proxy.newProxyInstance(
+                                        target.getClass().getClassLoader(),
+                                        new Class[]{PaymentService.class},
+                                        new BankServiceProxy(target)
+                                );
+                            }
+
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                // AOP Before Advice
+                                System.out.println("Logging: Before withdrawing money");
+
+                                // Call the actual method
+                                Object result = method.invoke(target, args);
+
+                                // AOP After Advice (if applicable)
+                                System.out.println("Logging: After withdrawing money");
+
+                                return result;
+                            }
+                        }
+                    ```
+
+                Main.class:
+
+                    ```
+                        public class Main {
+                            public static void main(String[] args) {
+                                ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                                BankService bankService = context.getBean(CreditCardPaymentService.class);
+                                bankService.processPayment();
+                            }
+                        }
+                    ```
+
+        (b) CGLIB Proxy (Class-Based Proxy)
+            
+            - Used when the target does not implement an interface.
+                
+            - Spring creates a new subclass of the original class by using the CGLIB (Code Generation Library) to generate 
+              bytecode at runtime.
+            
+            - It overrides the processPayment() method and adds logging before and after.
+            
+            - When calling processPayment(), you are actually calling the overridden proxy method.
+            
+            - The actual business logic (super.processPayment()) executes within this overridden method.
+
+            Example:
+
+                - Since WalletPaymentService does not implement an interface, Spring creates a subclass using CGLIB instead.
+
+                WalletPaymentService.class (Target Class):
+
+                    ```
+                        @Component
+                        public class WalletPaymentService {
+                            public void processPayment() {
+                                System.out.println("Processing wallet payment...");
+                            }
+                        }
+                    ```
+
+                - Spring generates a subclass by extending the target class and wraps the original method with extra behavior. 
+
+                Generated Proxy Class (Conceptually)
+
+                    ```
+                        public class WalletPaymentService$$EnhancerBySpringCGLIB extends WalletPaymentService {
+                            
+                            @Override
+                            public void processPayment() {    
+                                System.out.println("Logging: Before processing payment"); // Interception logic
+                                super.processPayment(); // Calls original method
+                            }
+                        }
+                    ```
+
+                Main.class:
+
+                    ```
+                        public class Main {
+                            public static void main(String[] args) {
+                                ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+                                BankService bankService = context.getBean(WalletPaymentService.class);
+                                bankService.processPayment();
+                            }
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Why Does Spring Prefer JDK Proxy When an Interface Exists ?
+
+>>  (1) Less dependency:
+
+        - JDK Proxy is built into Java, whereas CGLIB requires an external library.
+
+    (2) Avoids subclassing issues:
+    
+        - CGLIB cannot proxy final classes or final methods.
+
+    (3) Better for API design:
+    
+        - Encourages good coding practices (coding to interfaces).
+
+    - However, CGLIB proxies are more powerful because they can proxy classes without requiring an interface.
+
+________________________________________________________________________________________________________________________
