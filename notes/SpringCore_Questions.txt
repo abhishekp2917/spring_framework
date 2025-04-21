@@ -1,0 +1,712 @@
+*   What are various topics in Spring Core module ?
+
+>>  Below are the topics in Spring Core:
+
+        (1) Spring Utility Classes:
+
+            - Assert: Assertions for validating method arguments.
+
+            - StringUtils: String operations (e.g., isEmpty(), capitalize()).
+            
+            - CollectionUtils: Checking if collections are empty, merging collections.
+            
+            - ReflectionUtils: Accessing private fields/methods dynamically.
+            
+            - ObjectUtils: Checking object equality, default values.
+            
+            - ClassUtils: Getting class metadata dynamically.
+
+        (2) Common Annotations:
+
+            - @Nullable: Marks a parameter or return type as nullable.
+            
+            - @NonNullApi: Declares that parameters/returns are non-null by default.
+
+            - @Order: Specifies ordering for manually managed objects.
+
+        (3) Spring Event Handling Basics:
+
+            - ApplicationEvent: Concept of event-driven programming in Spring.
+            
+            - ApplicationListener: Interface for listening to events.
+
+            - Limitation: No event publishing without ApplicationEventPublisher.
+
+        (4) Type Conversion and Property Editors:
+
+            - TypeConverter: Converting values between types manually.
+            
+            - Custom PropertyEditor: Implementing type conversion logic.
+
+        (5) AOP Support (Basic Concepts Without Proxies)
+            
+            - Order, PriorityOrdered: Controlling execution order.
+            
+            - No actual proxy-based AOP, as spring-aop is required.
+
+        (6) Spring Resource Abstraction:
+
+            - Resource: Abstract representation of file resources.
+
+            - InputStreamSource: Reading from input streams.
+
+            - PathMatchingResourcePatternResolver: Resolving resource patterns.
+
+________________________________________________________________________________________________________________________
+
+*   Explain various Spring Utility Classes.
+
+>>  Below are the various utility classes:
+    
+    (1) StringUtils:
+
+        Key Methods:
+            
+            (a) isEmpty(String str):
+            	
+                - Checks if a string is empty (null or length 0).	
+                
+                Example:
+
+                    ```
+                        StringUtils.isEmpty("") // returns true
+                    ```
+
+            (b) hasText(String str):
+            	
+                - Checks if a string has non-whitespace characters.	
+                
+                Example:
+                
+                    ```
+                        StringUtils.hasText(" ") // returns false
+                    ```
+            (c) trimWhitespace(String str):
+            	
+                - Removes leading and trailing whitespace.	
+
+                Example:
+
+                    ```
+                        StringUtils.trimWhitespace(" Hello ") // returns "Hello"
+                    ```
+            
+            (d) capitalize(String str):
+            	
+                - Capitalizes the first letter of a string.	
+                
+                    ```
+                        StringUtils.capitalize("spring") // returns "Spring"
+                    ```
+
+            (e) uncapitalize(String str):
+            	
+                - Converts the first letter to lowercase.	
+                
+                    ```
+                        StringUtils.uncapitalize("Spring") // returns "spring"
+                    ```
+
+            (f) commaDelimitedListToStringArray(String str):
+            	
+                - Splits a comma-separated string into an array.	
+                
+                    ```
+                        StringUtils.commaDelimitedListToStringArray("a,b,c") → ["a", "b", "c"]
+                    ```
+
+    (2) CollectionUtils:
+
+        Key Methods:
+
+            (a) isEmpty(Collection<?> collection):
+            	
+                - Checks if a collection is empty or null.	
+                
+                Example:
+
+                    ```
+                        CollectionUtils.isEmpty(new ArrayList<>()) // returns true
+                    ```
+
+            (b) isEmpty(Map<?, ?> map):
+            	
+                - Checks if a map is empty or null.	
+                
+                Example:
+
+                    ```
+                        CollectionUtils.isEmpty(new HashMap<>()) // returns true
+                    ```
+
+            (c) containsInstance(Collection<?> collection, Object element):
+            	
+                - Checks if a collection contains a given object instance.	
+                
+                Example:
+
+                    ```
+                        CollectionUtils.containsInstance(list, obj)
+                    ```
+
+            (d) mergeArrayIntoCollection(Object[] array, Collection<?> collection):
+            	
+                - Merges an array into a collection.	
+                
+                Example:
+
+                    ```
+                        CollectionUtils.mergeArrayIntoCollection(arr, list)
+                    ```
+
+            (e) findFirstMatch(Collection<?> source, Collection<?> candidates):
+            	
+                - Finds the first matching element between two collections.	
+                
+                    ```
+                        CollectionUtils.findFirstMatch(list1, list2)
+                    ```
+
+    (3) ObjectUtils:
+
+        Key Methods:
+            
+            (1) isEmpty(Object obj):
+            	
+                - Checks if an object is null or an empty collection/array.	
+                
+                    ```
+                        ObjectUtils.isEmpty("") // returns true
+                    ```
+
+            (2) identityToString(Object obj):
+            	
+                - Returns the object's identity hashcode as a string.	
+                
+                    ```
+                        ObjectUtils.identityToString(new Object())
+                    ```
+
+            (3) nullSafeEquals(Object a, Object b):
+            	
+                - Safely checks equality, handling null values.	
+                
+                    ```
+                        ObjectUtils.nullSafeEquals(null, "test") // returns false
+                    ```
+
+            (4) nullSafeToString(Object obj):	
+            
+                - Converts an object to a string safely.	
+                
+                    ```
+                        ObjectUtils.nullSafeToString(null) // returns ""
+                    ```
+
+    (4) ReflectionUtils:
+
+        Key Methods:
+
+            (1) findField(Class<?> clazz, String fieldName):	
+            
+                - Finds a field in a class by name.	
+                
+                    ```
+                        ReflectionUtils.findField(MyClass.class, "name")
+                    ```
+
+            (2) setField(Field field, Object target, Object value):	
+            
+                - Sets a field value.	
+                
+                    ```
+                        ReflectionUtils.setField(field, obj, "NewValue")
+                    ```
+
+            (3) invokeMethod(Method method, Object target, Object... args):	
+            
+                - Invokes a method via reflection.	
+                
+                    ```
+                        ReflectionUtils.invokeMethod(method, obj, arg)
+                    ```
+
+    (5) ClassUtils:
+
+        Key Methods:
+        
+            (1) getShortName(Class<?> clazz):	
+            
+                - Gets the short class name.	
+                
+                    ```
+                        ClassUtils.getShortName(String.class) // returns "String"
+                    ```
+            (2) getPackageName(Class<?> clazz):	
+            
+                - Gets the package name of a class.	
+                
+                    ```
+                        ClassUtils.getPackageName(String.class) // returns "java.lang"
+                    ```
+
+            (3) isAssignable(Class<?> superType, Class<?> subType):	
+            
+                - Checks if a class is assignable to another.	
+
+                    ```
+                        ClassUtils.isAssignable(Number.class, Integer.class) // returns true
+                    ```
+
+    (6) Assert:
+
+        Key Methods:
+
+            (a) notNull(Object object, String message):
+
+                - Ensures that the provided object is not null; otherwise, it throws an IllegalArgumentException.
+
+                Example:
+
+                    ```
+                        Assert.notNull(user, "User object must not be null");
+                    ```
+
+            (b) isTrue(boolean expression, String message):
+
+                - Ensures that the given expression evaluates to true; otherwise, it throws an IllegalArgumentException.
+
+                Example:
+
+                    ```
+                        Assert.isTrue(age > 18, "Age must be greater than 18");
+                    ```
+
+            (c) hasLength(String text, String message):
+
+                - Ensures that the given string is not null and has a length greater than zero.
+
+                Example:
+
+                    ```
+                        Assert.hasLength("Spring", "String must not be empty");
+                    ```
+
+            (d) hasText(String text, String message):
+
+                - Ensures that the string contains at least one non-whitespace character.
+
+                Example:
+
+                    ```
+                        Assert.hasText("  ", "Text must not be empty or whitespace"); // Throws an exception
+                    ```
+
+            (e) notEmpty(Collection<?> collection, String message):
+
+                - Ensures that the provided collection is not empty.
+
+                Example:
+
+                    ```
+                        Assert.notEmpty(users, "User list must not be empty");
+                    ```
+
+            (f) notEmpty(Map<?, ?> map, String message):
+
+                - Ensures that the provided map is not empty.
+
+                Example:
+
+                    ```
+                        Assert.notEmpty(userRoles, "Roles map must not be empty");
+                    ```
+
+            (g) doesNotContain(String textToSearch, String substring, String message):
+
+                - Ensures that the given text does not contain the specified substring.
+
+            Example:
+
+                ```
+                    Assert.doesNotContain("Hello World", "Test", "Text should not contain 'Test'");
+                ```
+                
+            (h) noNullElements(Object[] array, String message):
+
+                - Ensures that an array contains no null elements.
+
+                Example:
+
+                    ```
+                        Assert.noNullElements(new String[]{"Spring", null}, "Array must not contain null elements"); // Throws an exception
+                    ```
+
+            (i) state(boolean expression, String message):
+
+                - Ensures that the given state is valid; otherwise, it throws an IllegalStateException.
+
+                Example:
+
+                    ```
+                        Assert.state(session.isOpen(), "Session must be open");
+                    ```
+
+            (j) isInstanceOf(Class<?> type, Object obj, String message):
+
+                - Ensures that the given object is an instance of the specified class.
+
+                Example:
+
+                    ```
+                        Assert.isInstanceOf(String.class, "Hello", "Object must be a String");
+                    ```
+
+            (k) isAssignable(Class<?> superType, Class<?> subType, String message):
+
+                - Ensures that the given subType is assignable to the specified superType.
+
+                Example:
+
+                    ```
+                        Assert.isAssignable(Number.class, Integer.class, "Integer must be assignable to Number");
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   What are various Spring Core annotations ? 
+
+>>  Below is the complete list of Spring Core modules:  
+
+        (1) @AliasFor
+        (2) @Nullable
+        (3) @NonNull
+        (4) @NonNullApi
+        (5) @NonNullFields
+        (6) @Order
+        (7) @Priority
+        (8) @SynthesizedAnnotation
+        (9) @BridgeMethodMapping
+        (10) @MergesProperties
+        (11) @ManagedAttribute
+        (12) @ManagedOperation
+        (13) @ManagedResource
+
+________________________________________________________________________________________________________________________
+
+*   Explain @AliasFor annotation in detail.
+
+>>  The @AliasFor annotation is used to declare an alias for an annotation attribute, ensuring consistency and reducing 
+    redundancy when defining meta-annotations in Spring.
+
+    It works in conjunction with meta-annotations such as @Component, @Service, @Repository, etc.
+
+    How @AliasFor Works:
+
+        - @AliasFor allows one annotation attribute to serve as an alias for another within the same annotation or across 
+          meta-annotations.
+
+        - It ensures that setting one attribute automatically sets the aliased attribute.
+
+    Example:
+
+        - The @CustomAnnotation has two attributes, name and value and can be linked as aliases.
+
+        - Changing one attribute updates the other automatically.
+
+            ```
+                import org.springframework.core.annotation.AliasFor;
+                import java.lang.annotation.*;
+
+                @Retention(RetentionPolicy.RUNTIME)
+                @Target(ElementType.TYPE)
+                public @interface CustomAnnotation {
+
+                    @AliasFor("value")
+                    String name() default "";
+
+                    @AliasFor("name")
+                    String value() default "";
+                }
+            ```
+
+    Key Features:
+
+        (a) Meta-Annotation Aliasing:
+            
+            - @AliasFor can be used to alias attributes from meta-annotations.
+
+            - This is useful when creating custom annotations that extend existing ones.
+
+            Example:
+
+                - The @Admin annotation extends @Role, and value in @Admin maps to role in @Role.
+
+                    ```
+                        @Role
+                        public @interface Admin {
+
+                            @AliasFor(annotation = Role.class, attribute = "role")
+                            String value() default "ADMIN";
+                        }
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Nullable annotation in detail.
+
+>>  The @Nullable annotation is used to indicate that a parameter, return value, or field can be null. 
+
+    When using @Nullable, modern IDEs provide warnings for potential NullPointerException risks which helps developers 
+    write safer code without unnecessary runtime errors.
+
+    How @Nullable Works:
+        
+        - @Nullable informs the compiler, static analysis tools, and developers that a particular variable, method 
+          parameter, or return type can be null.
+
+        - It does not enforce null safety at runtime but helps avoid unintended NullPointerException errors by providing 
+          warnings.
+
+    Example:
+
+        - The 'getUser' method may return null.
+        
+        - Similarly, 'processUser' method parameter and class field 'email' can also be null.
+
+            ```
+                import org.springframework.lang.Nullable;
+
+                public class UserService {
+
+                    @Nullable
+                    private String email;
+
+                    @Nullable
+                    public User getUser(String userId) {
+                        if (userId.equals("123")) {
+                            return new User("John Doe");
+                        }
+                        return null;
+                    }
+
+                    public void processUser(@Nullable User user) {
+                        if (user != null) {
+                            System.out.println(user.getName());
+                        } else {
+                            System.out.println("User not found!");
+                        }
+                    }
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @NonNull annotation in detail.  
+
+>>  The @NonNull annotation is used to indicate that a parameter, return value, or field must not be null.
+
+    How @NonNull Works:
+
+        - @NonNull informs the compiler, static analysis tools, and developers that a variable, method parameter, or 
+          return type cannot be null.
+
+        - If null is passed to or returned from a @NonNull annotated element, IDEs or tools may warn or fail builds 
+          depending on configuration.
+
+    Example:    
+        
+        - The getUserName method guarantees a non-null return.
+
+        - The setEmail method enforces a non-null parameter.
+
+        - The field username must always be non-null.
+
+        ```
+            import org.springframework.lang.NonNull;
+
+            public class UserService {
+
+                @NonNull
+                private String username;
+
+                public UserService(@NonNull String username) {
+                    this.username = username;
+                }
+
+                @NonNull
+                public String getUserName() {
+                    return username;
+                }
+
+                public void setEmail(@NonNull String email) {
+                    // The IDE will warn if someone passes null here
+                    System.out.println("Email set to: " + email);
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @NonNullApi annotation in detail.
+
+>>  The @NonNullApi annotation is used to indicate that all parameters, return types, and fields within a package or 
+    class are non-null by default, unless explicitly annotated with @Nullable.
+    
+    By applying @NonNullApi at the package level, developers reduce the need to annotate each element with @NonNull, 
+    leading to cleaner code.
+
+    It does not perform runtime null checks.
+
+    Example:
+
+        - The UserService class is under a package where all parameters and return values are non-null by default, 
+          unless marked with @Nullable.
+
+        ```
+            @NonNullApi
+            package com.example.userservice;
+
+            import org.springframework.lang.NonNullApi;
+            import org.springframework.lang.Nullable;
+
+            public class UserService {
+
+                // This field is non-null by default
+                private String username;
+
+                public UserService(String username) {
+                    this.username = username;
+                }
+
+                public String getUsername() {
+                    return username; // Non-null return by default
+                }
+
+                public void updateUser(@Nullable String email) {
+                    if (email != null) {
+                        System.out.println("Updated email: " + email);
+                    }
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Order annotation in detail. 
+
+>>  The @Order annotation is used to define the order of execution for components, aspects, event listeners, or any 
+    other ordered beans in Spring Framework.
+    
+    It helps Spring determine which bean should be processed first when multiple beans participate in a common lifecycle 
+    step, like filters, interceptors etc.
+
+    How @Order Works:
+
+        - It accepts an int value, where lower values have higher priority (i.e., they are ordered first).
+
+        - It is used in scenarios where bean ordering affects behavior.
+
+    Example:
+
+        - LoggingAspect executes before SecurityAspect because it has a lower @Order value.
+
+        ```
+            import org.aspectj.lang.annotation.Aspect;
+            import org.aspectj.lang.annotation.Before;
+            import org.springframework.core.annotation.Order;
+            import org.springframework.stereotype.Component;
+
+            @Aspect
+            @Order(1)  // Higher priority
+            @Component
+            public class LoggingAspect {
+
+                @Before("execution(* com.example.service.*.*(..))")
+                public void logBefore() {
+                    System.out.println("Logging before method execution");
+                }
+            }
+
+            @Aspect
+            @Order(2)  // Lower priority
+            @Component
+            public class SecurityAspect {
+
+                @Before("execution(* com.example.service.*.*(..))")
+                public void checkSecurity() {
+                    System.out.println("Security check before method execution");
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are the difference between @Order annotation and Ordered interface ?
+
+>>  (1) Definition:
+
+        - @Order is an annotation used to statically declare the execution order of Spring components like beans, 
+          aspects, or listeners.
+
+            ```
+                @Order(1)
+                public class MyComponent { ... }
+            ```
+
+        - Ordered is an interface that allows you to programmatically define the execution order of a bean by implementing 
+          the getOrder() method.
+
+            ```
+                public class MyComponent implements Ordered {
+                    public int getOrder() { return 1; }
+                }
+            ```
+
+    (2) Flexibility:
+
+        - @Order has fixed value at compile time.
+
+        - Ordered can dynamically compute or change the order based on configuration or logic.
+
+    (3) Target Elements:
+
+        - @Order is applied to classes, methods (@Bean), or listeners directly.
+
+        - Ordered is implemented by classes.
+
+________________________________________________________________________________________________________________________
+
+*   Explain @Priority annotation in detail. 
+
+>>  The @Priority is used to define the ordering of components or beans, similar to Spring’s @Order. 
+
+    It is commonly used in Java EE, Jakarta EE, and supported in Spring for ordering beans, interceptors, or event listeners.
+
+    Unlike @Order which can only be used in Spring application, @Priority is a standardized way to order components across 
+    different frameworks.
+
+    If both @Order and @Priority are used on the same bean, Spring gives preference to @Order.
+
+    Example:
+        
+        - In this case, LoggingInterceptor will be invoked before SecurityInterceptor.
+
+        ```
+            import org.springframework.stereotype.Component;
+            import javax.annotation.Priority;
+
+            @Component
+            @Priority(1)  // Higher priority
+            public class LoggingInterceptor implements HandlerInterceptor {
+                // preHandle logic for logging
+            }
+
+            @Component
+            @Priority(2)  // Lower priority
+            public class SecurityInterceptor implements HandlerInterceptor {
+                // preHandle logic for security
+            }
+        ```
+
+________________________________________________________________________________________________________________________
