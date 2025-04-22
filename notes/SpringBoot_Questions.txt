@@ -667,214 +667,97 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
-*   What is the difference between @RestController and @Controller ?
+*   How does Spring Boot handle serialization and deserialization ?
 
->>  (1) Purpose:
+>>  Spring Boot handles serialization and deserialization via HttpMessageConverters, using Jackson by default to convert 
+    between Java objects and JSON.
 
-        - @Controller used for creating traditional MVC applications where the methods return views (HTML, JSP, Thymeleaf, etc.).
+    Spring Boot automatically registers HttpMessageConverter like:
 
-        - @RestController specifically used for creating RESTful web services where methods return data in formats like 
-          JSON or XML.
+        - MappingJackson2HttpMessageConverter → for JSON
 
-    (2) Response Type:
+        - MappingJackson2XmlHttpMessageConverter → for XML
 
-        - @Controller: By default, methods return views (HTML files) and need @ResponseBody to send data like JSON or XML.
+        - StringHttpMessageConverter → for plain text        
 
-        - @RestController: Automatically serializes return objects into JSON or XML and sends them as the HTTP response body (no need for @ResponseBody).
+    (1) JSON serialization/deserialization:
 
+        - JSON serialization/deserialization is handled by MappingJackson2HttpMessageConverter
 
-    (3) Usage:
+        - It internally uses Jackson’s 'jackson-databind' module to convert HTTP requests/responses to Java objects and vice versa.
 
-        - @Controller: Suitable for applications where both dynamic web pages and REST endpoints are needed.
+        - When you include spring-boot-starter-web, spring includes Jackson 'jackson-databind' dependency by default for JSON. 
 
-        - @RestController: Used when the application is purely focused on providing an API (typically for web services or mobile apps).
+    (2) XML serialization/deserialization:
 
-________________________________________________________________________________________________________________________
+        - XML serialization/deserialization is handled by MappingJackson2XmlHttpMessageConverter.
 
-*   What is the use of @RequestMapping and how does it differ from the newer mapping annotations ?
+        - It internally uses Jackson’s XML module 'jackson-dataformat-xml'.
 
->>  @RequestMapping is a core annotation in Spring MVC used to map web requests to specific controller methods or classes.
-
-    It can handle all HTTP methods (GET, POST, PUT, DELETE, etc.) using its method attribute.
-
-    It can be used at both class level and method level.
-
-    Example:
-
-        ```
-            @RequestMapping(value = "/users", method = RequestMethod.GET)
-            public List<User> getUsers() {
-                return userService.getAllUsers();
-            }
-        ```
+        - Spring Boot can serialize/deserialize XML just like JSON — but you must add this dependency as spring doesn't add
+          it by default.
 
 ________________________________________________________________________________________________________________________
 
-*   How do @GetMapping, @PostMapping, @PutMapping, and @DeleteMapping work ?
+*   What is ObjectMapper and XMLMapper ?
 
->>  These annotations are specialized versions of @RequestMapping for specific HTTP methods, introduced in Spring 4.3, 
-    and are used to map specific HTTP methods to handler methods in a REST controller.
+>>  (1) ObjectMapper – JSON Mapper:
 
-    (1) @GetMapping:
+        - It is part of the Jackson core library (jackson-databind)
 
-        - Maps HTTP GET requests which is used to retrieve data from the server.
+        - Used to serialize/deserialize Java objects to JSON and vice versa.
 
-            ```
-                @GetMapping("/users")
-                public List<User> getAllUsers() {
-                    return userService.getAllUsers();
-                }
-            ```
-
-    (2) @PostMapping:
-        
-        - Maps HTTP POST requests which is used to create a new resource.
-
-            ```
-                @PostMapping("/users")
-                public User createUser(@RequestBody User user) {
-                    return userService.saveUser(user);
-                }
-            ```
-
-    (3) @PutMapping:
-        
-        - Maps HTTP PUT requests which is used to update an existing resource (full update).
-
-            ```
-                @PutMapping("/users/{id}")
-                public User updateUser(@PathVariable Long id, @RequestBody User user) {
-                    return userService.updateUser(id, user);
-                }
-            ```
-
-    (4) @DeleteMapping:
-
-        - Maps HTTP DELETE requests which is used to delete a resource.
-
-            ```
-                @DeleteMapping("/users/{id}")
-                public void deleteUser(@PathVariable Long id) {
-                    userService.deleteUser(id);
-                }
-            ```
-
-________________________________________________________________________________________________________________________
-
-*   What is the difference between @RequestParam, @PathVariable, and @RequestBody ?
-
->>  (1) @RequestParam:
-
-        - Used to map query parameters from the URL to a method argument.
+        - MappingJackson2HttpMessageConverter (HttpMessageConverter) internally uses ObjectMapper for serialize/deserialize.
 
         Example:
 
             ```
-                // URL: /greet?name=Joe
-
-                @GetMapping("/greet")
-                public String greet(@RequestParam String name) {
-                    return "Hello " + name;
-                }
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = objectMapper.writeValueAsString(myObject); // Java → JSON
+                MyClass obj = objectMapper.readValue(json, MyClass.class); // JSON → Java
             ```
-                
-    (2) @PathVariable:
 
-        - Used to map values from URI path segments to a method argument.
+    (2) XmlMapper – XML Mapper:
 
-        Example:
+        - Subclass of ObjectMapper provided by jackson-dataformat-xml
 
-                ```
-                    // URL: /users/10
-                    @GetMapping("/users/{id}")
-                    public User getUser(@PathVariable Long id) {
-                        return userService.getUserById(id);
-                    }
-                ```
-    (3) @RequestBody:
+        - Used to perform similar operations as ObjectMapper but for XML instead of JSON
 
-        - Binds the HTTP request body to a Java object.
-
-        - Requires a JSON/XML body and automatically converts it using HttpMessageConverters.
+        - MappingJackson2XmlHttpMessageConverter (HttpMessageConverter) internally uses ObjectMapper for serialize/deserialize.
 
         Example:
 
             ```
-                // POST request with JSON body: { "name": "Joe", "age": 25 }
-                @PostMapping("/users")
-                public User createUser(@RequestBody User user) {
-                    return userService.saveUser(user);
-                }
+                XmlMapper xmlMapper = new XmlMapper();
+                String xml = xmlMapper.writeValueAsString(myObject);         // Java → XML
+                MyClass obj = xmlMapper.readValue(xml, MyClass.class);       // XML → Java
             ```
 
 ________________________________________________________________________________________________________________________
 
-*   How do you handle default values in @RequestParam ?
+*   How can you return XML instead of JSON in a Spring Boot REST API ?
 
->>  When a request parameter is missing, @RequestParam can use a default value instead of throwing an error.
+>>  To return XML in Spring Boot follow below steps: 
 
-    Key Attributes of @RequestParam:
-        
-        (1) value: Name of the request parameter.
+        - add Jackson XML dependency 'jackson-dataformat-xml'
 
-        (2) required: If true, throws error when missing. If false, allows absence.
+            ```
+                <dependency>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-xml</artifactId>
+                </dependency>
+            ```
 
-        (3) defaultValue: Used when the parameter is not present.
-
-    Example:
-
-        - If '?name=' is absent in url then Spring will inject 'Guest' as a value of param 'name'  
-
-        ```
-            @GetMapping("/greet")
-            public String greetUser(@RequestParam(defaultValue = "Guest") String name) {
-                return "Hello, " + name;
-            }
-        ```
-
-________________________________________________________________________________________________________________________
-
-*   What is the use of @ResponseBody ?
-
->>  @ResponseBody tells Spring not to return a view, instead write the return value to the HTTP response body (JSON or XML).
-
-    Commonly used with @Controller but not needed with @RestController, which includes it implicitly.
-
-    Spring uses HTTP message converters (like Jackson) to convert Java objects to JSON/XML and writes them in the HTTP response.
-
-    Example:
-
-        - Without @ResponseBody, it would try to find a view named "Hello, World!".
-
-        ```
-            @Controller
-            public class MyController {
-
-                @ResponseBody
-                @GetMapping("/hello")
-                public String sayHello() {
-                    return "Hello, World!";
+        - annotate the model class with @JacksonXmlRootElement
+            
+            ```
+                @JacksonXmlRootElement(localName = "User")
+                public class User {
+                    private String name;
+                    private int age;
                 }
-            }
-        ```
-
-________________________________________________________________________________________________________________________
-
-*   How do you return custom HTTP status codes from a controller ?
-
->>  
-
-________________________________________________________________________________________________________________________
-
-*   What are ResponseEntity and HttpStatus, and how are they used ?
-
->>  
-
-________________________________________________________________________________________________________________________
-
-*   How does Spring Boot handle JSON serialization and deserialization ?
-
->>
+            ```
+        - ensure the client requests application/xml
 
 ________________________________________________________________________________________________________________________
 

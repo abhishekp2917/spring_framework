@@ -8,29 +8,34 @@
         (4)  @GetMapping  
         (5)  @PostMapping  
         (6)  @PutMapping  
-        (7)  @DeleteMapping  
-        (8)  @PatchMapping  
-        (9)  @RequestMethod  
+        (7)  @PatchMapping  
+        (8)  @DeleteMapping  
+        (9)  @RequestHeader  
         (10) @RequestParam  
-        (11) @RequestBody  
-        (12) @PathVariable  
-        (13) @RequestHeader  
+        (11) @PathVariable 
+        (12) @RequestBody 
+        (13) @ResponseBody
+        (14) @ResponseStatus
+        (15) @RequestAttribute  
+        (16) @SessionAttribute 
+
+        (17) @ExceptionHandler  
+        (18) @ControllerAdvice  
+        (19) @RestControllerAdvice  
+
         (14) @CookieValue  
         (15) @MatrixVariable  
-        (16) @RequestPart  
-        (17) @RequestAttribute  
-        (18) @ResponseBody  
-        (19) @ResponseStatus  
-        (20) @ExceptionHandler  
-        (21) @ControllerAdvice  
-        (22) @RestControllerAdvice  
+        (17) @RequestPart  
+        (18) 
+        (19)   
+        
         (23) @ModelAttribute  
         (24) @SessionAttributes  
         (25) @InitBinder  
         (26) @CrossOrigin  
         (27) @ResponseBodyEmitter  
         (28) @StreamingResponseBody  
-        (29) @SessionAttribute  
+         
         (30) @RequestScope  
         (31) @SessionScope  
         (32) @ApplicationScope  
@@ -40,5 +45,356 @@
         (36) @WebMvcConfigurer  
         (37) @PageableDefault  
         (38) @SortDefault  
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @RestController and @Controller ?
+
+>>  (1) Purpose:
+
+        - @Controller used for creating traditional MVC applications where the methods return views (HTML, JSP, Thymeleaf, etc.).
+
+        - @RestController specifically used for creating RESTful web services where methods return data in formats like 
+          JSON or XML.
+
+    (2) Response Type:
+
+        - @Controller: By default, methods return views (HTML files) and need @ResponseBody to send data like JSON or XML.
+
+        - @RestController: Automatically serializes return objects into JSON or XML and sends them as the HTTP response body (no need for @ResponseBody).
+
+
+    (3) Usage:
+
+        - @Controller: Suitable for applications where both dynamic web pages and REST endpoints are needed.
+
+        - @RestController: Used when the application is purely focused on providing an API (typically for web services or mobile apps).
+
+________________________________________________________________________________________________________________________
+
+
+*   What is the use of @RequestMapping and how does it differ from the newer mapping annotations ?
+
+>>  @RequestMapping is a core annotation in Spring MVC used to map web requests to specific controller methods or classes.
+
+    It can handle all HTTP methods (GET, POST, PUT, DELETE, etc.) using its method attribute.
+
+    It can be used at both class level and method level.
+
+    Example:
+
+        ```
+            @RequestMapping(value = "/users", method = RequestMethod.GET)
+            public List<User> getUsers() {
+                return userService.getAllUsers();
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How do @GetMapping, @PostMapping, @PutMapping, @PatchMapping and @DeleteMapping work ?
+
+>>  These annotations are specialized versions of @RequestMapping for specific HTTP methods, introduced in Spring 4.3, 
+    and are used to map specific HTTP methods to handler methods in a REST controller.
+
+    (1) @GetMapping:
+
+        - Maps HTTP GET requests which is used to retrieve data from the server.
+
+            ```
+                @GetMapping("/users")
+                public List<User> getAllUsers() {
+                    return userService.getAllUsers();
+                }
+            ```
+
+    (2) @PostMapping:
+        
+        - Maps HTTP POST requests which is used to create a new resource.
+
+            ```
+                @PostMapping("/users")
+                public User createUser(@RequestBody User user) {
+                    return userService.saveUser(user);
+                }
+            ```
+
+    (3) @PutMapping:
+        
+        - Maps HTTP PUT requests which is used to fully update an existing resource.
+
+            ```
+                @PutMapping("/users/{id}")
+                public User updateUser(@PathVariable Long id, @RequestBody User user) {
+                    return userService.updateUser(id, user);
+                }
+            ```
+
+    (4) @PatchMapping:
+
+        - Maps HTTP PATCH requests which is used for partial updates of a resource — unlike @PutMapping which 
+          expects full updates.
+
+            ```
+                @PatchMapping("/users/{id}")
+                public User partiallyUpdateUser(@PathVariable Long id, @RequestBody User user) {
+                    return userService.updateUser(id, user);
+                }
+            ```
+
+    (5) @DeleteMapping:
+
+        - Maps HTTP DELETE requests which is used to delete a resource.
+
+            ```
+                @DeleteMapping("/users/{id}")
+                public void deleteUser(@PathVariable Long id) {
+                    userService.deleteUser(id);
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between RequestMethod, @RequestHeader, @RequestParam, @PathVariable, and @RequestBody ?
+
+>>  (1) RequestMethod:
+
+        - RequestMethod is an enum used within the @RequestMapping annotation to define HTTP methods like GET, POST, etc.
+
+        Example:
+
+            ```
+                @RequestMapping(value = "/hello", method = RequestMethod.GET)
+                public String sayHello() {
+                    return "Hello!";
+                }
+            ```
+
+    (2) @RequestHeader:
+
+        - Used to map HTTP request headers to a method argument.
+
+        Example:
+
+            ```
+                @GetMapping("/hello")
+                public String hello(@RequestHeader("User-Agent") String userAgent) {
+                    return "User-Agent: " + userAgent;
+                }
+            ```
+
+    (3) @RequestParam:
+
+        - Used to map query parameters from the URL to a method argument.
+
+        Example:
+
+            ```
+                // URL: /greet?name=Joe
+
+                @GetMapping("/greet")
+                public String greet(@RequestParam String name) {
+                    return "Hello " + name;
+                }
+            ```
+                
+    (4) @PathVariable:
+
+        - Used to map values from URI path segments to a method argument.
+
+        Example:
+
+                ```
+                    // URL: /users/10
+                    @GetMapping("/users/{id}")
+                    public User getUser(@PathVariable Long id) {
+                        return userService.getUserById(id);
+                    }
+                ```
+    (5) @RequestBody:
+
+        - Binds the HTTP request body to a Java object.
+
+        - Requires a JSON/XML body and automatically converts it using HttpMessageConverters.
+
+        Example:
+
+            ```
+                // POST request with JSON body: { "name": "Joe", "age": 25 }
+                @PostMapping("/users")
+                public User createUser(@RequestBody User user) {
+                    return userService.saveUser(user);
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   How do you handle default values in @RequestParam ?
+
+>>  When a request parameter is missing, @RequestParam can use a default value instead of throwing an error.
+
+    Key Attributes of @RequestParam:
+        
+        (1) value: Name of the request parameter.
+
+        (2) required: If true, throws error when missing. If false, allows absence.
+
+        (3) defaultValue: Used when the parameter is not present.
+
+    Example:
+
+        - If '?name=' is absent in url then Spring will inject 'Guest' as a value of param 'name'  
+
+        ```
+            @GetMapping("/greet")
+            public String greetUser(@RequestParam(defaultValue = "Guest") String name) {
+                return "Hello, " + name;
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @ResponseBody ?
+
+>>  @ResponseBody tells Spring not to return a view, instead write the return value to the HTTP response body (JSON or XML).
+
+    Commonly used with @Controller but not needed with @RestController, which includes it implicitly.
+
+    Spring uses HTTP message converters (like Jackson) to convert Java objects to JSON/XML and writes them in the HTTP response.
+
+    Example:
+
+        - Without @ResponseBody, it would try to find a view named "Hello, World!".
+
+        ```
+            @Controller
+            public class MyController {
+
+                @ResponseBody
+                @GetMapping("/hello")
+                public String sayHello() {
+                    return "Hello, World!";
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How do you return custom HTTP status codes from a controller ?
+
+>>  (1) Using ResponseEntity:
+
+        - Most flexible way to return custom status codes, headers, and body.
+
+            ```
+                @GetMapping("/greet")
+                public ResponseEntity<String> greet() {
+                    return new ResponseEntity<>("Hello!", HttpStatus.ACCEPTED); // 202
+                }
+            ```
+    (2) Using @ResponseStatus:
+
+        - Used at method or exception class level to return fixed status.
+
+            ```
+                @ResponseStatus(HttpStatus.CREATED) // 201
+                @PostMapping("/user")
+                public void createUser(@RequestBody User user) {
+                    // logic
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What are ResponseEntity and HttpStatus, and how are they used ?
+
+>>  (1) ResponseEntity<?>:
+
+        - It is a generic wrapper for HTTP response that includes:
+            
+            (a) Response body
+            (b) HTTP status code
+            (c) Optional headers
+
+        Example:
+
+            ```
+                @GetMapping("/custom")
+                public ResponseEntity<String> customResponse() {
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("X-Custom-Header", "value");
+                    return new ResponseEntity<>("Custom body", headers, HttpStatus.ACCEPTED);
+                }
+            ```
+
+    (2) HttpStatus:
+
+        - It is an enum provided by Spring that represents standard HTTP response status codes like:
+
+            (a) HttpStatus.OK → 200
+            (b) HttpStatus.CREATED → 201
+            (c) HttpStatus.NOT_FOUND → 404
+            (d) HttpStatus.INTERNAL_SERVER_ERROR → 500
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @RequestAttribute ?
+
+>>  @RequestAttribute is used to map request attributes set on the server side (not by the client), typically by filters 
+    or interceptors to the method parameters.
+
+    It is used when data is pre-populated by filters, interceptors, or other internal logic and you need to access 
+    it in a controller.
+    
+    Example:
+
+        ```
+            @GetMapping("/profile")
+            public String getProfile(@RequestAttribute("userId") String userId) {
+                return "User ID from attribute: " + userId;
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @SessionAttribute ?
+
+>>  @SessionAttribute is used to map attributes from the HttpSession to a method parameter in a Spring controller.
+
+    It allows access to server-side session data that was previously stored (e.g., after login).
+    
+    Example:
+
+        - Assumes the user object was previously saved to the session which can be accessed using @SessionAttribute
+
+        ```
+            User user = new User("Joe");
+            request.getSession().setAttribute("user", user);
+        ```
+
+        ```
+            @GetMapping("/dashboard")
+            public String dashboard(@SessionAttribute("user") User user) {
+                return "Welcome, " + user.getName();
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the purpose of @ExceptionHandler ?
+
+>>
+
+________________________________________________________________________________________________________________________
+
+*   What is @ControllerAdvice and how is it used for global exception handling ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   How do you return consistent error responses from your API ?
+
+>>  
 
 ________________________________________________________________________________________________________________________
