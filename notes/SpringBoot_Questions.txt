@@ -667,6 +667,124 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is the difference between @RestController and @Controller ?
+
+>>  (1) Purpose:
+
+        - @Controller used for creating traditional MVC applications where the methods return views (HTML, JSP, Thymeleaf, etc.).
+
+        - @RestController specifically used for creating RESTful web services where methods return data in formats like 
+          JSON or XML.
+
+    (2) Response Type:
+
+        - @Controller: By default, methods return views (HTML files) and need @ResponseBody to send data like JSON or XML.
+
+        - @RestController: Automatically serializes return objects into JSON or XML and sends them as the HTTP response body (no need for @ResponseBody).
+
+
+    (3) Usage:
+
+        - @Controller: Suitable for applications where both dynamic web pages and REST endpoints are needed.
+
+        - @RestController: Used when the application is purely focused on providing an API (typically for web services or mobile apps).
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @RequestMapping and how does it differ from the newer mapping annotations ?
+
+>>  @RequestMapping is a core annotation in Spring MVC used to map web requests to specific controller methods or classes.
+
+    It can handle all HTTP methods (GET, POST, PUT, DELETE, etc.) using its method attribute.
+
+    It can be used at both class level and method level.
+
+    Example:
+
+        ```
+            @RequestMapping(value = "/users", method = RequestMethod.GET)
+            public List<User> getUsers() {
+                return userService.getAllUsers();
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How do @GetMapping, @PostMapping, @PutMapping, and @DeleteMapping work ?
+
+>>  These annotations are specialized versions of @RequestMapping for specific HTTP methods, introduced in Spring 4.3, 
+    and are used to map specific HTTP methods to handler methods in a REST controller.
+
+    (1) @GetMapping:
+
+        - Maps HTTP GET requests which is used to retrieve data from the server.
+
+            ```
+                @GetMapping("/users")
+                public List<User> getAllUsers() {
+                    return userService.getAllUsers();
+                }
+            ```
+
+    (2) @PostMapping:
+        
+        - Maps HTTP POST requests which is used to create a new resource.
+
+            ```
+                @PostMapping("/users")
+                public User createUser(@RequestBody User user) {
+                    return userService.saveUser(user);
+                }
+            ```
+
+    (3) @PutMapping:
+        
+        - Maps HTTP PUT requests which is used to update an existing resource (full update).
+
+            ```
+                @PutMapping("/users/{id}")
+                public User updateUser(@PathVariable Long id, @RequestBody User user) {
+                    return userService.updateUser(id, user);
+                }
+            ```
+
+    (4) @DeleteMapping:
+
+        - Maps HTTP DELETE requests which is used to delete a resource.
+
+            ```
+                @DeleteMapping("/users/{id}")
+                public void deleteUser(@PathVariable Long id) {
+                    userService.deleteUser(id);
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @RequestParam, @PathVariable, and @RequestBody ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   How do you handle default values in @RequestParam ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   How do you return custom HTTP status codes from a controller ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   What are ResponseEntity and HttpStatus, and how are they used ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
 
 How to configure logging in Spring Boot?
 
@@ -687,9 +805,6 @@ What is the purpose of @Valid and @Validated?
 
 
 
-
-What is the difference between @Component, @Service, @Repository, and @Controller?
-
 How to create a custom starter in Spring Boot?
 
 What is the use of @ConfigurationProperties?
@@ -699,11 +814,7 @@ What are the common Spring Boot annotations?
 How does Spring Boot support different environments?
 
 
-How to define and activate a Spring Boot profile?
 
-What is the difference between application.properties and application.yml?
-
-How do you run a Spring Boot application?
 
 What is the purpose of the spring.factories file?
 
