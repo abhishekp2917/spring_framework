@@ -1,0 +1,44 @@
+*   What are various Spring MVC annotations ?
+
+>>  Below is the complete list of Spring MVC annotations:
+
+        (1)  @Controller  
+        (2)  @RestController  
+        (3)  @RequestMapping  
+        (4)  @GetMapping  
+        (5)  @PostMapping  
+        (6)  @PutMapping  
+        (7)  @DeleteMapping  
+        (8)  @PatchMapping  
+        (9)  @RequestMethod  
+        (10) @RequestParam  
+        (11) @RequestBody  
+        (12) @PathVariable  
+        (13) @RequestHeader  
+        (14) @CookieValue  
+        (15) @MatrixVariable  
+        (16) @RequestPart  
+        (17) @RequestAttribute  
+        (18) @ResponseBody  
+        (19) @ResponseStatus  
+        (20) @ExceptionHandler  
+        (21) @ControllerAdvice  
+        (22) @RestControllerAdvice  
+        (23) @ModelAttribute  
+        (24) @SessionAttributes  
+        (25) @InitBinder  
+        (26) @CrossOrigin  
+        (27) @ResponseBodyEmitter  
+        (28) @StreamingResponseBody  
+        (29) @SessionAttribute  
+        (30) @RequestScope  
+        (31) @SessionScope  
+        (32) @ApplicationScope  
+        (33) @Valid  
+        (34) @Validated  
+        (35) @EnableWebMvc  
+        (36) @WebMvcConfigurer  
+        (37) @PageableDefault  
+        (38) @SortDefault  
+
+________________________________________________________________________________________________________________________
