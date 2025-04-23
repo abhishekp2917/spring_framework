@@ -3,7 +3,7 @@
 >>  Below is the complete list of Spring MVC annotations:
 
         (1)  @Controller  
-        (2)  @RestController  
+        (2)  @RestController
         (3)  @RequestMapping  
         (4)  @GetMapping  
         (5)  @PostMapping  
@@ -11,40 +11,33 @@
         (7)  @PatchMapping  
         (8)  @DeleteMapping  
         (9)  @RequestHeader  
-        (10) @RequestParam  
-        (11) @PathVariable 
-        (12) @RequestBody 
-        (13) @ResponseBody
-        (14) @ResponseStatus
+        (10) @RequestParam 
+        (11) @CookieValue  
+        (12) @PathVariable 
+        (13) @RequestBody 
+        (14) @RequestPart
         (15) @RequestAttribute  
         (16) @SessionAttribute 
-
-        (17) @ExceptionHandler  
-        (18) @ControllerAdvice  
-        (19) @RestControllerAdvice  
-
-        (14) @CookieValue  
-        (15) @MatrixVariable  
-        (17) @RequestPart  
-        (18) 
-        (19)   
-        
-        (23) @ModelAttribute  
-        (24) @SessionAttributes  
-        (25) @InitBinder  
-        (26) @CrossOrigin  
-        (27) @ResponseBodyEmitter  
-        (28) @StreamingResponseBody  
-         
-        (30) @RequestScope  
-        (31) @SessionScope  
-        (32) @ApplicationScope  
-        (33) @Valid  
-        (34) @Validated  
-        (35) @EnableWebMvc  
-        (36) @WebMvcConfigurer  
-        (37) @PageableDefault  
-        (38) @SortDefault  
+        (17) @SessionAttributes 
+        (18) @ModelAttribute 
+        (19) @ResponseBody
+        (20) @ResponseStatus
+        (21) @ExceptionHandler  
+        (22) @ControllerAdvice  
+        (23) @RestControllerAdvice  
+        (24) @RequestScope  
+        (25) @SessionScope  
+        (26) @ApplicationScope  
+        (27) @Valid  
+        (28) @Validated 
+        (29) @EnableWebMvc 
+        (20) @CrossOrigin
+        (31) @MatrixVariable     
+        (32) @InitBinder  
+        (33) @ResponseBodyEmitter  
+        (34) @StreamingResponseBody  
+        (35) @PageableDefault  
+        (36) @SortDefault  
 
 ________________________________________________________________________________________________________________________
 
@@ -254,6 +247,48 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is the use of @RequestPart ?
+
+>>  @RequestPart is used to extract specific parts from a multipart/form-data request, commonly used to handle file 
+    uploads along with JSON objects in REST APIs.
+
+    If JSON/XML objects are sent as a raw request body, then @RequestPart can extract it. In such case @RequestBody is used. 
+
+    Example: 
+
+        - 'file' is the binary part.
+
+        - 'user' is a JSON object (Spring deserializes it using Jackson).
+
+        ```
+            @PostMapping("/upload")
+            public ResponseEntity<String> upload(@RequestPart("file") MultipartFile file, @RequestPart("user") UserDTO user) {
+            
+                // process file and object
+                return ResponseEntity.ok("Uploaded successfully");
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @CookieValue ?
+
+>>  @CookieValue is used to extract a specific cookie value from the HTTP request and map it directly to a controller 
+    method parameter.
+
+    It’s similar to @RequestParam, but it pulls the data from a cookie instead of query parameters or form fields.
+
+    Example:
+        
+        ```
+            @GetMapping("/welcome")
+            public String welcome(@CookieValue("username") String username) {
+                return "Welcome " + username;
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
 *   What is the use of @ResponseBody ?
 
 >>  @ResponseBody tells Spring not to return a view, instead write the return value to the HTTP response body (JSON or XML).
@@ -381,20 +416,448 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is the difference between @SessionAttribute and @SessionAttributes ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+
+*   What is the use of @ModelAttribute ?
+
+>>  @ModelAttribute is used to bind form data or query parameters to a Java object.
+
+    It supports application/x-www-form-urlencoded and multipart/form-data. 
+    
+    Example:
+
+        ```
+            public class User {
+                private String name;
+                private int age;
+            }
+        ```
+
+        ```
+            @PostMapping("/register")
+            public String registerUser(@ModelAttribute User user) {
+                // Spring binds form fields to 'user' object
+                return "userRegistered";
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @ModelAttribute and @RequestBody ?
+
+>>  @ModelAttribute binds form data or query parameters to Java objects. 
+    
+    @RequestBody binds JSON/XML request body to Java objects for REST APIs.
+    
+________________________________________________________________________________________________________________________
+
 *   What is the purpose of @ExceptionHandler ?
 
->>
+>>  @ExceptionHandler is used to define custom methods to handle exceptions thrown by controller methods in a centralized 
+    and clean way.
+
+    It allows you to define custom responses when a specific exception is thrown during request processing.
+
+    Example 
+    
+        (1) Controller Level:
+        
+            ```
+                @RestController
+                public class MyController {
+
+                    @GetMapping("/divide")
+                    public int divide(@RequestParam int a, @RequestParam int b) {
+                        return a / b; // Might throw ArithmeticException
+                    }
+
+                    @ExceptionHandler(ArithmeticException.class)
+                    public ResponseEntity<String> handleArithmetic(ArithmeticException ex) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot divide by zero!");
+                     }
+                }
+            ```
+        (2) Global Exception Handling:
+            
+            ```
+                @ControllerAdvice
+                public class GlobalExceptionHandler {
+
+                    @ExceptionHandler(ResourceNotFoundException.class)
+                    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found");
+                    }
+                }
+            ```
 
 ________________________________________________________________________________________________________________________
 
 *   What is @ControllerAdvice and how is it used for global exception handling ?
 
->>  
+>>  @ControllerAdvice is used to handle exceptions globally in a Spring Boot application by defining @ExceptionHandler 
+    methods which is shared accross controllers.
+
+    Example:
+
+        ```
+            @ControllerAdvice
+            public class GlobalExceptionHandler {
+
+                @ExceptionHandler(ResourceNotFoundException.class)
+                public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found");
+                }
+
+                @ExceptionHandler(Exception.class)
+                public ResponseEntity<String> handleGeneric(Exception ex) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @ControllerAdvice and @RestControllerAdvice ?
+
+>>  (1) @ControllerAdvice:
+
+        - It is a specialization of @Component used for global exception handling.
+
+        - By default, it returns views (HTML) or ModelAndView, similar to @Controller and to return objects, you need to 
+          use @ResponseBody manually.
+
+        Example:
+
+            ```
+                @ControllerAdvice
+                public class GlobalHandler {
+
+                    // Needed to return JSON
+                    @ResponseBody 
+                    @ExceptionHandler(Exception.class) 
+                    public String handleException(Exception ex) {
+                        return "Error occurred";
+                    }
+                }
+            ```
+    
+    (2) @RestControllerAdvice:
+
+        - It is a combination of @ControllerAdvice + @ResponseBody and used for REST APIs as it returns JSON/XML by default.
+
+        Example:
+
+            ```
+                @RestControllerAdvice
+                public class RestGlobalHandler {
+
+                    @ExceptionHandler(Exception.class)
+                    public String handleException(Exception ex) {
+                        return "Error occurred"; // Automatically converted to JSON
+                    }
+                }
+            ```
 
 ________________________________________________________________________________________________________________________
 
 *   How do you return consistent error responses from your API ?
 
->>  
+>>  To return consistent error responses, create a custom ErrorResponse class and handle all exceptions globally using 
+    @RestControllerAdvice and @ExceptionHandler.
 
 ________________________________________________________________________________________________________________________
+
+*   What is the difference between @RequestScope, @SessionScope and @ApplicationScope ?
+
+>>  (1) @RequestScope:
+
+        - A bean annotated with @RequestScope is created when a HTTP request is made and destroyed when the request ends.
+
+        - Useful when you need a bean that should not be shared across multiple requests.
+
+        Example:
+
+            ```
+                @Component
+                @RequestScope
+                public class RequestBean {
+
+                }
+            ```
+
+    (2) @SessionScope:
+
+        - A bean with @SessionScope is created when the session is established and remains until the session 
+          expires or is invalidated.
+
+        - Useful for storing data that should persist across multiple requests but for a specific user session, 
+          like login information.
+
+        Example:
+
+            ```
+                @Component
+                @SessionScope
+                public class SessionBean {
+
+                }
+            ```
+
+    (3) @ApplicationScope:
+
+        - A bean with @ApplicationScope is created once for the entire application and is destroyed when the 
+          application shuts down.
+
+        - Useful for data that should be shared globally across all requests and sessions in the application.
+
+        Example:
+
+            ```
+                @Component
+                @ApplicationScope
+                public class ApplicationBean {
+
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @Valid and @Validated ?
+
+>>  (1) @Valid:
+
+        - @Valid triggers default validation rules defined using Java Bean Validatio annotations like @NotNull, @Email etc.
+        
+        - It can be used on method parameters or class fields.
+
+        Example:
+
+            - Validation annotations on a class User only take effect when the object is marked with @Valid.
+
+            ```
+                public class User {
+                    @NotNull
+                    private String name;
+
+                    @Email
+                    private String email;
+                }
+            ```
+
+            ```
+                @PostMapping("/register")
+                public ResponseEntity<Void> register(@Valid @RequestBody User user) {
+                    // Validation happens here
+                    return ResponseEntity.ok().build();
+                }
+            ```
+    
+    (2) @Validated:
+
+        - @Validated is Spring specific and functions similar to @Valid but is more powerful than @Valid. 
+        
+        - It allows you to specify groups (e.g., @NotNull(groups = Group1.class)) and trigger validation
+          based on the group passed.
+
+        Example:
+
+            - The bean validation annotations which doesn't belong to a group that is passed to @Validated, 
+              will have no effect.
+
+            ```
+                public class User {
+                    @NotNull(groups = First.class)
+                    private String name;
+
+                    @Email(groups = Second.class)
+                    private String email;
+                }
+            ```
+
+            ```
+                @PostMapping("/register")
+                public ResponseEntity<Void> register(@Validated(First.class) @RequestBody User user) {
+                    // Only fields validated for 'First' group
+                    return ResponseEntity.ok().build();
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @EnableWebMvc ?
+
+>>  @EnableWebMvc enables custom Spring MVC configurations, such as view resolvers, message converters etc.
+
+    It registers required MVC beans, such as HttpMessageConverters, RequestMappingHandlerMapping etc.
+
+    When used in a Spring Boot application, it disables Spring Boot’s default MVC auto-configuration, so you must 
+    define configurations explicitly.
+
+    Example:
+
+        ```
+            @Configuration
+            @EnableWebMvc
+            public class WebConfig implements WebMvcConfigurer {
+
+                // Manually configure what Spring Boot used to do for you
+                @Override
+                public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+                    converters.add(new MappingJackson2HttpMessageConverter());
+                }
+
+                @Override
+                public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                    registry
+                        .addResourceHandler("/resources/**")
+                        .addResourceLocations("/resources/");
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of WebMvcConfigurer ?
+
+>>  WebMvcConfigurer is an interface in Spring that allows you to customize Spring MVC configuration in a non-Spring Boot 
+    application. 
+    
+    It provides a way to define or override the default behavior of Spring MVC components such as Message Converters, 
+    View Resolvers, Static Resource Handlers, interceptors etc.
+
+    Example:
+
+        ```
+            @Configuration
+            @EnableWebMvc  // Enable MVC
+            public class WebConfig implements WebMvcConfigurer {
+
+                // Customize message converters (JSON)
+                @Override
+                public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+                    converters.add(new MappingJackson2HttpMessageConverter());  
+                }
+
+                // Add static resource handler (for custom resources)
+                @Override
+                public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                    registry.addResourceHandler("/resources/**")
+                            .addResourceLocations("/resources/");
+                }
+
+                // Register custom interceptors
+                @Override
+                public void addInterceptors(InterceptorRegistry registry) {
+                        registry.addInterceptor(new CustomInterceptor());
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @CrossOrigin ?
+
+>>  The @CrossOrigin annotation in Spring Boot is used to enable CORS at the controller or method level to allow the
+    requests from different domains (origins).
+
+    @CrossOrigin applied to a specific controller will enable CORS for only those APIs and not globally accross all the 
+    controllers.
+
+    Example:
+
+        ```
+            @RestController
+            @CrossOrigin(
+                origins = "http://localhost:3000", 
+                methods = { RequestMethod.GET, RequestMethod.POST },
+                allowedHeaders = { "Content-Type", "Authorization" },
+                exposedHeaders = { "Custom-Header" },
+                allowCredentials = "true",
+                maxAge = 3600,
+                originPatterns = { "https://*.example.com" }
+            )
+            public class ProductController {
+
+                @GetMapping("/products")
+                public List<Product> getProducts() {
+                    return productService.getAll();
+                }
+
+                // Or on method-level
+                @PostMapping("/products")
+                @CrossOrigin(origins = "*", methods = {RequestMethod.POST})
+                public void addProduct(@RequestBody Product product) {
+                    productService.save(product);
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are various ways to define CORS in Spring MVC ?
+
+>>  There are 3 main ways to configure CORS in Spring MVC:
+
+    (1) Using @CrossOrigin:
+
+        - Use when you want fine-grained control over CORS per controller or method.
+
+            ```
+                @CrossOrigin(origins = "http://localhost:3000")
+                @RestController
+                public class MyController {
+                    
+                    @GetMapping("/data")
+                    public String getData() {
+                        return "Hello";
+                    }
+                }
+            ```
+
+    (2) Global CORS via WebMvcConfigurer:
+
+        - Used to apply CORS rules globally across all Controllers.
+
+            ```
+                @Configuration
+                public class WebConfig implements WebMvcConfigurer {
+                    
+                    @Override
+                    public void addCorsMappings(CorsRegistry registry) {
+                        registry.addMapping("/**")
+                                .allowedOrigins("http://localhost:3000")
+                                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                                .allowedHeaders("*")
+                                .exposedHeaders("Authorization")
+                                .allowCredentials(true)
+                                .maxAge(3600);
+                    }
+                }
+            ```
+
+    (3) Using CorsConfigurationSource Bean (with Spring Security)
+        
+        - Preferred when you're using Spring Security and want to integrate CORS directly with the security chain.
+
+            ```
+                @Bean
+                public CorsConfigurationSource corsConfigurationSource() {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:3000"));
+                    config.setAllowedMethods(List.of("GET", "POST"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+
+                    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                    source.registerCorsConfiguration("/**", config);
+                    return source;
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+

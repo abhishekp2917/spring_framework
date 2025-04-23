@@ -788,6 +788,89 @@ ________________________________________________________________________________
 
 
 
+
+🆚 @RequestPart vs @RequestParam:
+
+Feature	@RequestPart	@RequestParam
+Used with	multipart/form-data	application/x-www-form-urlencoded, etc.
+Supports JSON parts	✅ Yes	❌ No (treats all parts as strings/files)
+Deserializes to POJO	✅ Yes (with Jackson)	❌ No
+💡 Interview One-Liner:
+
+Let me know if you want an example with Postman or curl usage too!
+
+
+
+
+
+
+
+You said:
+so in this case to extract user using requestpart, the json/xml payload should be sent as a multipart and not as a raw body
+
+
+ChatGPT said:
+Exactly! 🔥 Yes — for @RequestPart to work:
+
+✅ The entire request must be sent as multipart/form-data, not as raw JSON or XML.
+
+🔍 Why?
+@RequestPart tells Spring to extract a named part from a multipart request.
+
+So, even if you're sending JSON/XML (like a User object), it must be part of a multipart structure.
+
+🧪 Example: Sending file + JSON using Postman
+Set method: POST
+Headers: Content-Type: multipart/form-data (automatically handled by Postman)
+Body → form-data:
+
+
+Key	Type	Value
+file	File	(Choose file)
+user	Text	{"name":"Abhishek", "age":25}
+Postman will treat this as a proper multipart request and Spring will deserialize the user part using Jackson into the UserDTO.
+
+❌ If you send JSON as raw body (application/json):
+@RequestPart("user") will not work.
+
+Instead, you should use @RequestBody.
+
+✅ Summary:
+
+Use case	Use annotation	Content-Type
+Just JSON/XML	@RequestBody	application/json or application/xml
+File + JSON/XML together	@RequestPart	multipart/form-data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 How to create a custom starter in Spring Boot?
 
 What is the use of @ConfigurationProperties?
