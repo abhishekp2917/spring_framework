@@ -761,27 +761,163 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
-*   What are Jackson annotations like @JsonIgnore, @JsonProperty, @JsonInclude ?
+*   What are various Jackson annotations ?
 
->>  
+>>  (1) @JsonProperty:
+
+        - Used to specify the property name to be used during serialization and deserialization.
+
+        ```
+            @JsonProperty("user_name") private String userName;
+        ```
+
+    (2) @JsonIgnore:
+
+        - Excludes a field from both serialization and deserialization.
+
+        ```
+            @JsonIgnore private String password;
+        ```
+
+    (3) @JsonInclude:
+
+        - Used to specify which properties should be included in the JSON output. 
+
+        ```
+            @JsonInclude(JsonInclude.Include.NON_NULL) private String address;
+        ```
+
+    (4) @JsonDeserialize:
+
+        - Used to specify a custom deserializer for a field.
+
+        ```
+            @JsonDeserialize(using = CustomDateDeserializer.class)
+            private Date dateOfBirth;
+        ```
+
+    (5) @JsonSerialize:
+
+        - Used to specify a custom serializer for a field.
+
+        ```
+            @JsonSerialize(using = CustomDateSerializer.class)
+            private Date startDate;
+        ```
 
 ________________________________________________________________________________________________________________________
 
-*   How do you customize JSON output in Spring Boot ?
+*   How to create a fat JAR with Spring Boot ?
 
->>
+>>  Creating a "fat" JAR (also known as an executable JAR or Uber JAR) with Spring Boot is simple and typically done 
+    using Maven. 
+    
+    A fat JAR bundles all dependencies, libraries, and resources into a single JAR file, which makes it easy to deploy 
+    and run anywhere.
+
+    Spring Boot provides the spring-boot-maven-plugin to build executable JAR files.
+
+    (1) Add the Spring Boot Maven Plugin to pom.xml:
+
+        ```
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        ```
+
+    (2) Package the application:
+
+        - Run the following Maven command to build the fat JAR:
+
+            ```
+                mvn clean package
+            ```
+
+    (3) Running the fat JAR:
+    
+        - After the build is complete, the executable JAR file will be located in the target/ directory of your project.
+
+        - Run below cmd to run:
+
+            ```
+                java -jar target/your-artifact-name-<version>.jar
+            ```
 
 ________________________________________________________________________________________________________________________
 
-*   How do you consume and produce different content types in a REST API ?
+*   What are the different ways to deploy a Spring Boot application ?
 
->>
+>>  Below are the most common ways to deploy a Spring Boot application:
+
+    (1) Executable JAR (Fat JAR) Deployment:
+
+        - Package the Spring Boot application as an executable JAR file, which contains both the application code and 
+          all dependencies.
+
+        How to Deploy:
+
+            - Build the JAR file using 'mvn clean package'.
+
+            - Deploy the JAR file to a server and run it using 'java -jar <your-application>.jar'.
+
+    (2) WAR File Deployment:
+
+        - Spring Boot can also generate a WAR file that can be deployed to a traditional servlet container such as Tomcat.
+
+        How to Deploy:
+
+            - Modify your pom.xml to package the app as a WAR.
+
+                ```
+                    <packaging>war</packaging>
+                ```
+
+            - Deploy the WAR file to a servlet container.
 
 ________________________________________________________________________________________________________________________
 
-*   How do you version REST APIs in Spring Boot (URI versioning, header versioning, etc.) ?
+*   How to create a custom annotation in Spring Boot ?
 
->>
+>>  Create the custom annotation by using @interface in Java and specify retention policies and targets to control 
+    where the annotation can be applied (e.g., methods, fields, parameters).
+
+        ```
+            @Target(ElementType.METHOD) // Can be applied to methods
+            @Retention(RetentionPolicy.RUNTIME) // Retained at runtime for reflection
+            public @interface LogExecutionTime {
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of @ConfigurationProperties ?
+
+>>  @ConfigurationProperties is used to bind external configuration properties (application.properties) to a fields in 
+    java object. 
+
+    Example:
+
+        - @ConfigurationProperties will map all the properties that has a prefix 'app' to corresponding fields in AppConfig 
+
+        ```
+            app.name=MyApplication
+            app.version=1.0
+        ```
+
+        ```
+            @Component
+            @ConfigurationProperties(prefix = "app")
+            public class AppConfig {
+
+                private String name;
+                private String version;
+            }
+        ```
 
 ________________________________________________________________________________________________________________________
 
@@ -789,15 +925,8 @@ ________________________________________________________________________________
 
 
 
-🆚 @RequestPart vs @RequestParam:
 
-Feature	@RequestPart	@RequestParam
-Used with	multipart/form-data	application/x-www-form-urlencoded, etc.
-Supports JSON parts	✅ Yes	❌ No (treats all parts as strings/files)
-Deserializes to POJO	✅ Yes (with Jackson)	❌ No
-💡 Interview One-Liner:
 
-Let me know if you want an example with Postman or curl usage too!
 
 
 
@@ -805,212 +934,17 @@ Let me know if you want an example with Postman or curl usage too!
 
 
 
-You said:
-so in this case to extract user using requestpart, the json/xml payload should be sent as a multipart and not as a raw body
 
 
-ChatGPT said:
-Exactly! 🔥 Yes — for @RequestPart to work:
 
-✅ The entire request must be sent as multipart/form-data, not as raw JSON or XML.
 
-🔍 Why?
-@RequestPart tells Spring to extract a named part from a multipart request.
 
-So, even if you're sending JSON/XML (like a User object), it must be part of a multipart structure.
 
-🧪 Example: Sending file + JSON using Postman
-Set method: POST
-Headers: Content-Type: multipart/form-data (automatically handled by Postman)
-Body → form-data:
 
 
-Key	Type	Value
-file	File	(Choose file)
-user	Text	{"name":"Abhishek", "age":25}
-Postman will treat this as a proper multipart request and Spring will deserialize the user part using Jackson into the UserDTO.
 
-❌ If you send JSON as raw body (application/json):
-@RequestPart("user") will not work.
 
-Instead, you should use @RequestBody.
 
-✅ Summary:
 
-Use case	Use annotation	Content-Type
-Just JSON/XML	@RequestBody	application/json or application/xml
-File + JSON/XML together	@RequestPart	multipart/form-data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-How to create a custom starter in Spring Boot?
-
-What is the use of @ConfigurationProperties?
-
-What are the common Spring Boot annotations?
-
-How does Spring Boot support different environments?
-
-
-
-
-What is the purpose of the spring.factories file?
-
-What are conditional annotations in Spring Boot?
-
-How to exclude auto-configuration classes?
-
-What is the use of @SpringBootTest?
-
-What is Spring Boot CLI?
-
-How to secure Spring Boot applications?
-
-How does Spring Boot support JWT authentication?
-
-How to configure a DataSource in Spring Boot?
-
-How does Spring Boot support JPA?
-
-What is the role of spring-boot-starter-data-jpa?
-
-How to implement pagination and sorting in Spring Boot?
-
-What is the difference between CrudRepository, JpaRepository, and PagingAndSortingRepository?
-
-What are custom repository methods in Spring Data JPA?
-
-What is the use of @Entity, @Table, @Id, and @GeneratedValue?
-
-How to use projections and DTOs in Spring Data JPA?
-
-What is the use of @Query annotation?
-
-How to handle transactions in Spring Boot?
-
-What is the use of @Transactional?
-
-What is Spring Boot caching and how is it implemented?
-
-What are the caching providers supported in Spring Boot?
-
-How to schedule tasks in Spring Boot?
-
-What is the use of @Scheduled?
-
-How to send emails in Spring Boot?
-
-How to consume RESTful web services in Spring Boot?
-
-What is RestTemplate?
-
-What is WebClient?
-
-How to use Spring Boot with WebSocket?
-
-
-What is the use of Spring Boot with Kafka?
-
-How to integrate RabbitMQ with Spring Boot?
-
-What is Spring Cloud and how is it related to Spring Boot?
-
-What is the use of Eureka in Spring Boot?
-
-What is Spring Boot with Zuul or Gateway?
-
-How does Spring Boot support service discovery?
-
-What is the role of Feign in Spring Boot microservices?
-
-How does Spring Boot support circuit breaker?
-
-What is the use of Resilience4j in Spring Boot?
-
-What is Spring Boot Sleuth?
-
-What is Zipkin and how is it used with Spring Boot?
-
-What is a Spring Boot filter and how is it implemented?
-
-What is the order of filters in Spring Boot?
-
-What is a Spring Boot interceptor?
-
-How to create a custom error response in Spring Boot?
-
-How to configure multipart file upload in Spring Boot?
-
-How to use Lombok in Spring Boot?
-
-What is the use of MapStruct with Spring Boot?
-
-How to handle circular dependencies in Spring Boot?
-
-What is the difference between @Bean and @Component?
-
-What is method injection in Spring Boot?
-
-What are the different bean scopes in Spring Boot?
-
-What is the difference between singleton and prototype scope?
-
-How is dependency injection achieved in Spring Boot?
-
-What is constructor injection and field injection?
-
-
-
-How to create a custom annotation in Spring Boot?
-
-How to perform unit testing in Spring Boot?
-
-What is MockMvc?
-
-What is the use of @WebMvcTest?
-
-What is the use of @DataJpaTest?
-
-How to mock beans in Spring Boot tests?
-
-What is test slicing in Spring Boot?
-
-What are the different ways to deploy a Spring Boot application?
-
-How to create a fat JAR with Spring Boot?
-
-What is the purpose of Spring Boot Maven/Gradle plugin?
-
-What are the common Spring Boot best practices?
-
-What is the future scope of Spring Boot and its ecosystem?
 
 

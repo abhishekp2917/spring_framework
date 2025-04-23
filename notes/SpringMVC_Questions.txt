@@ -289,6 +289,40 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is the use of @MatrixVariable ?
+
+>>  Matrix variables are name-value pairs embedded in a URL path, separated by semicolons (;).
+
+        ```
+            http://amazon.com/products;color=red;size=medium
+        ```
+    @MatrixVariable is used to access this name-value pairs. 
+
+    Example:
+
+        ```
+            @GetMapping("/products/")
+            public ResponseEntity<String> getProducts(
+                    @MatrixVariable(required = false, defaultValue = "all") String color,
+                    @MatrixVariable(required = false) size) {
+                // process
+            }
+        ```
+
+    By default, Spring MVC strips semicolon content. To enable matrix variable support, you must configure:
+
+        ```
+            @Configuration
+            public class WebConfig implements WebMvcConfigurer {
+                @Override
+                public void configurePathMatch(PathMatchConfigurer configurer) {
+                    configurer.setUseMatrixVariables(true);
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
 *   What is the use of @ResponseBody ?
 
 >>  @ResponseBody tells Spring not to return a view, instead write the return value to the HTTP response body (JSON or XML).
@@ -861,3 +895,268 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is the role of DispatcherServlet in Spring MVC ?
+
+>>  The DispatcherServlet acts as the central point for handling all HTTP requests and responses in the Spring MVC framework. 
+    
+    Key Responsibilities:
+
+        - It receives all incoming HTTP requests and uses HandlerMapping to determine to which controller method request 
+          should be forwarded.
+
+        - It binds request parameters to Controller method arguments or model objects.
+
+        - If the response is a view(like "home"), it uses a ViewResolver to map it to an actual view (e.g., JSP, Thymeleaf).
+
+        - It uses HttpMessageConverters to build the HTTP response (JSON, XML, HTML, etc.).
+
+________________________________________________________________________________________________________________________
+
+*   How to configure DispatcherServlet in Spring MVC ?
+
+>>  Follow below steps to configure DispatcherServlet:
+
+        (1) Define DispatcherServlet in web.xml
+
+            ```
+                <web-app>
+
+                    <!-- DispatcherServlet registration -->
+                    <servlet>
+                        <servlet-name>spring</servlet-name> <!-- custom DispatcherServlet name -->
+                        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+                        
+                        <!-- specify servlet location in case servlet file doen't follow naming convetion-->
+                        <init-param>
+                            <param-name>contextConfigLocation</param-name>
+                            <param-value>/WEB-INF/spring-servlet.xml</param-value>
+                        </init-param>
+                        <load-on-startup>1</load-on-startup>
+                    </servlet>
+
+                    <!-- URL pattern for DispatcherServlet -->
+                    <servlet-mapping>
+                        <servlet-name>spring</servlet-name>
+                        <url-pattern>/</url-pattern>
+                    </servlet-mapping>
+                </web-app>
+            ```
+    
+        (2) Create the <servlet>.xml file:
+
+            ``
+                <beans>
+
+                    <!-- Scan for components -->
+                    <context:component-scan base-package="com.example" />
+
+                    <!-- Enable Spring MVC annotations -->
+                    <mvc:annotation-driven />
+
+                    <!-- Configure ViewResolver -->
+                    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                        <property name="prefix" value="/WEB-INF/views/" />
+                        <property name="suffix" value=".jsp" />
+                    </bean>
+                </beans>
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Explain the request flow in a Spring MVC application.
+
+>>  (1) The client sends an HTTP request to the server.
+
+    (2) The DispatcherServlet receives the request as the front controller.
+
+    (3) DispatcherServlet uses HandlerMapping to identify the appropriate handler (controller method).
+
+    (4) The HandlerAdapter invokes the identified controller method.
+
+    (5) The controller method processes the request and returns a result (e.g., ModelAndView or response body).
+
+    (6) If a view name is returned, ViewResolver resolves it to a specific view.
+
+    (7) The view is rendered with model data (for MVC) or directly serialized to the response body (for REST).
+
+    (8) The DispatcherServlet sends the final HTTP response back to the client.
+
+________________________________________________________________________________________________________________________
+
+*   What are HandlerMapping, HandlerAdapter, and ViewResolver ?
+
+>>  (1) HandlerMapping:
+
+        - It is responsible for mapping incoming HTTP requests to the appropriate controller methods based on the 
+          request URL, HTTP method, and other factors.
+
+    (2) HandlerAdapter:
+
+        - Once HandlerMapping identifies the correct controller method, HandlerAdapter is used to invoke the method.
+
+    (3) ViewResolver:
+
+        - After the controller returns a logical view name, ViewResolver maps it to a specific view (e.g., JSP, Thymeleaf).
+
+________________________________________________________________________________________________________________________
+
+*   How to configure HandlerMapping, HandlerAdapter, and ViewResolver ?
+
+>>  In Spring Boot, you don't need to configure HandlerMapping, HandlerAdapter, or ViewResolver manually because 
+    auto-configuration handles it implicitly.
+
+    In a non-Spring Boot Spring MVC application:
+
+        (1) HandlerMapping:
+
+            - HandlerMapping is automatically configured with defaults like RequestMappingHandlerMapping.
+
+        (2) HandlerAdapter:
+
+            - HandlerAdapter is automatically configured with defaults like RequestMappingHandlerAdapter.
+
+        (3) ViewResolver:
+            
+            - You must explicitly define a ViewResolver bean (e.g., InternalResourceViewResolver for JSP) to resolve view 
+              names to actual views.
+
+            - It can be done via Java configuration (@Configuration) or XML configuration (spring-servlet.xml).
+
+                Annotation based:
+
+                    ```
+                        @Configuration
+                        public class WebConfig implements WebMvcConfigurer {
+                            @Override
+                            public void configureViewResolvers(ViewResolverRegistry registry) {
+                                InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+                                resolver.setPrefix("/WEB-INF/views/");
+                                resolver.setSuffix(".jsp");
+                                registry.viewResolver(resolver);
+                            }
+                        }
+                    ```
+                XML based :
+
+                    ```
+                        <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                            <property name="prefix" value="/WEB-INF/views/" />
+                            <property name="suffix" value=".jsp" />
+                        </bean>
+                    ```
+
+________________________________________________________________________________________________________________________
+
+*   Can you map multiple URLs to a single controller method?
+
+>>  Yes, in Spring, you can map multiple URLs to a single controller method using @RequestMapping annotation or its 
+    specialized variants like @GetMapping, @PostMapping etc
+
+    Example:
+
+        ```
+            @Controller
+            public class MyController {
+
+                @RequestMapping(value = {"/home", "/dashboard", "/main"})
+                public String handleMultipleUrls() {
+                    return "homePage";
+                }
+            }
+        ```
+
+        ```
+            @Controller
+            public class MyController {
+
+                @GetMapping(value = {"/home", "/dashboard"})
+                public String handleGetRequests() {
+                    return "homePage";
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How does Spring bind request parameters to Java objects ?
+
+>>  In Spring, request parameters are automatically bound to Java objects using data binding like @ModelAttribute,
+    @RequestBody, @RequestParam, @RequestPart, @HeaderAttribute, @SessionAttribute, @RequestAttribute etc   
+
+________________________________________________________________________________________________________________________
+
+*   What is the role of @InitBinder ?
+
+>>  @InitBinder is used to customize how Spring binds HTTP request parameters to Java objects by registering custom 
+    editors in a controller.
+
+    It will pre-process the data before binding it to the Java objects.
+
+    Example:
+
+        ```
+            @Controller
+            public class UserController {
+
+                @InitBinder
+                public void initBinder(WebDataBinder binder) {
+                    // Trim all string inputs
+                    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+                }
+
+                @PostMapping("/register")
+                public String register(@ModelAttribute User user) {
+                    // Custom binding logic applied here
+                    return "success";
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   How can you manually access HttpServletRequest and HttpServletResponse ?
+
+>>  You can access HttpServletRequest and HttpServletResponse by declaring them as method parameters in controller methods. 
+    
+    Spring will automatically injects them.
+
+    Example:
+
+        ```
+            @GetMapping("/greet")
+            public String greet(HttpServletRequest request, HttpServletResponse response) {
+                // process
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are the different ways to deploy a Spring MVC application ?
+
+>>  Follow below steps to deploy a Spring MVC application:
+ 
+        - Package your Spring MVC application as a 'war' (Web Application Archive) file.
+
+            ```
+                <packaging>war</packaging>
+            ```
+
+        - Add maven war plugin to build .war file.
+
+            ```                
+                <build>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <version>3.3.1</version>
+                        </plugin>
+                    </plugins>
+                </build>
+            ```
+
+        - Deploy the .war file to a servlet container like Tomcat, Jetty, or JBoss.
+
+        - The container will manage the lifecycle of the application, handling HTTP requests via Spring MVC's DispatcherServlet.
+
+________________________________________________________________________________________________________________________
