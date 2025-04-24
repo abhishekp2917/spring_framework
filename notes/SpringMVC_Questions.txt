@@ -65,7 +65,6 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
-
 *   What is the use of @RequestMapping and how does it differ from the newer mapping annotations ?
 
 >>  @RequestMapping is a core annotation in Spring MVC used to map web requests to specific controller methods or classes.

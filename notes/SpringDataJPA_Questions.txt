@@ -1,0 +1,563 @@
+*   What are various JPA annotations ?
+
+>>  Here's a complete list of commonly used JPA annotations:
+
+        (1) @Entity	
+        (2) @Table	
+        (3) @MappedSuperclass	
+        (4) @Embeddable	
+        (5) @Embedded
+        (6) @Id	
+        (7) @GeneratedValue	
+        (8) @SequenceGenerator	
+        (9) @TableGenerator	
+        (10) @Column
+        (11) @Transient	
+        (12) @Temporal	
+        (13) @Lob	
+        (14) @Enumerated	
+        (15) @Basic	
+        (16) @OneToOne
+        (17) @OneToMany
+        (18) @ManyToOne
+        (19) @ManyToMany
+        (20) @JoinColumn
+        (21) @JoinTable	
+        (22) @MappedBy	
+        (23) @Cascade 
+        (24) @PrePersist	
+        (25) @PostPersist	
+        (26) @PreUpdate	
+        (27) @PostUpdate	
+        (28) @PreRemove	
+        (29) @PostRemove	
+        (30) @PostLoad	
+        (31) @NamedQuery	
+        (32) @NamedQueries	
+        (33) @NamedNativeQuery
+        (34) @SqlResultSetMapping	
+
+________________________________________________________________________________________________________________________
+
+*   What is Spring Data JPA ?
+
+>>  Spring Data JPA is a part of the Spring Data project that simplifies data access by providing an abstraction layer 
+    over JPA, reducing boilerplate code and allowing developers to focus more on business logic.
+
+    If you are working on a Spring Boot project, add this dependency in your pom.xml.
+
+        ```
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jpa</artifactId>
+            </dependency>
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are the differences between JPA, Hibernate, and Spring Data JPA ?
+
+>>  (1) JPA (Java Persistence API):
+
+        - It is a standard specification ORM in Java.
+
+        - JPA defines interfaces and annotations, but does not provide implementation.
+
+    (2) Hibernate:
+
+        - It is the most popular JPA implementation.
+
+        - Handles actual interaction with the database: SQL generation, caching, dirty checking, etc.
+
+    (3) Spring Data JPA:
+
+        - It is a Spring project that builds on top of JPA and which provides powerful abstractions to reduce boilerplate.
+
+        - It typically uses Hibernate under the hood.
+
+        - Auto-generates queries from method names (findByEmail, findByAgeGreaterThan)
+
+________________________________________________________________________________________________________________________
+
+*   What is an Entity ? How to define it ?
+
+>>  An Entity is a lightweight, persistent domain object in JPA that maps to a table in a relational database.
+
+    How to Define an Entity:
+
+        - Annotate a class with @Entity
+
+        - Provide a primary key field annotated with @Id.
+
+        - Optionally, map fields to columns using @Column.
+
+    Example:
+
+        ```
+            @Entity
+                public class User {
+
+                    @Id
+                    @GeneratedValue(strategy = GenerationType.IDENTITY)
+                    private Long id;
+
+                    @Column(nullable = false)
+                    private String name;
+                }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between @Entity and @Table ?
+
+>>  (1) @Entity:
+
+        - Marks a Java class as a JPA entity — meaning it's mapped to a database table.
+
+        - Without @Entity, JPA won't treat the class as a persistable entity.
+
+        - If @Table is not used, the class name is used as the table name.
+
+            ```
+                import jakarta.persistence.Entity;
+
+                @Entity
+                public class User {
+                    private Long id;
+                    private String name;
+                }
+            ```
+
+    (2) @Table:
+
+        - Provides additional metadata like custom table name, schema, or catalog.
+
+        - It’s optional and used only when customization is needed.
+
+            ```
+                import jakarta.persistence.Entity;
+                import jakarta.persistence.Table;
+
+                @Entity
+                @Table(name = "users", schema = "app_data")
+                public class User {
+                    private Long id;
+                    private String name;
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   How does Spring Data JPA simplify data access layers ?
+
+>>  (1) Eliminates Boilerplate Code:
+
+        - Spring Data JPA generates standard CRUD operations automatically (like save(), findById(), delete()), 
+          removing the need to write repetitive DAO implementations.
+
+    (2) Powerful Query Methods from Method Names:
+
+        - It allows defining queries just by method names, like findByUsername() or findByAgeGreaterThan(), which are 
+          automatically implemented at runtime.
+
+    (3) Repository Abstractions:
+
+        - Provides interfaces like JpaRepository, CrudRepository, and PagingAndSortingRepository that offer powerful 
+          abstraction over the JPA layer.
+
+________________________________________________________________________________________________________________________
+
+*   What is the Repository interface in Spring Data JPA ?
+
+>>  The Repository is a root interface in Spring Data JPA which provides a mechanism for interacting with the underlying 
+    database without the need for boilerplate code. 
+
+    The Repository interface itself has no concrete methods but are defined in the CrudRepository and JpaRepository 
+    interfaces, which extend Repository interface.
+    
+    The Spring Data JPA automatically provides the implementation of the Repository methods at runtime based on the 
+    method signatures.
+
+    Example:
+
+        - JpaRepository extends Repository and provides additional methods like findAll(), findById(), save(), etc.
+
+        ```
+            @Repository
+            public interface UserRepository extends JpaRepository<User, Long> {
+                // Automatically implemented method for querying User by lastName
+                List<User> findByLastName(String lastName);
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What are CrudRepository and JpaRepository ?
+
+>>  (1) CrudRepository:
+
+        - CrudRepository is a Spring Data interface that provides methods to perform basic CRUD operations.
+         
+        - Use CrudRepository if you need simple CRUD functionality without complex querying or pagination.
+
+        Methods provided by CrudRepository:
+
+            (a) save(S entity) - Saves a given entity.
+
+            (b) saveAll(Iterable<S> entities) - Saves multiple entities in a batch.
+
+            (c) findById(ID id) - Retrieves an entity by its ID.
+
+            (d) existsById(ID id) - Checks if an entity with the given ID exists.
+
+            (e) findAll() - Retrieves all entities.
+
+            (f) deleteById(ID id) - Deletes an entity by its ID.
+
+            (g) deleteAll(Iterable<? extends T> entities) - Deletes multiple entities.
+
+    (2) JpaRepository:
+
+        - JpaRepository extends CrudRepository and PagingAndSortingRepository and adds JPA-specific functionality, 
+          making it more powerful for advanced data access operations, such as pagination, sorting etc.
+
+        - Use JpaRepository if you need advanced JPA features, such as pagination, sorting etc.
+
+        - In addition to the methods provided by CrudRepository, JpaRepository provides:
+
+            (a) flush() - Flushes the persistence context to the database.
+
+            (b) saveAndFlush(S entity) - Saves an entity and flushes changes to the database immediately.
+
+            (c) findAll(Sort sort) - Retrieves all entities sorted by the provided Sort object.
+
+            (d) findAll(Pageable pageable) - Retrieves a paginated list of entities.
+
+________________________________________________________________________________________________________________________
+
+*   What is PagingAndSortingRepository ?
+
+>>  PagingAndSortingRepository is a Spring Data interface that extends CrudRepository and adds pagination and sorting 
+    capabilities to top of it.
+
+    Additional methods provided by PagingAndSortingRepository:
+
+        (a) findAll(Pageable pageable): Allows retrieving entities in pages/chunks, useful for large datasets.
+
+        (b) findAll(Sort sort): allows retrieving sorted results based on entity fields.
+
+________________________________________________________________________________________________________________________
+
+*   How does Spring Data JPA works internally ?
+
+>>  Spring Data JPA abstracts boilerplate repository logic by auto-generating method implementations based on interface 
+    definitions using proxy creation, JPA EntityManager etc.
+
+    Step-by-Step Internal Working:
+
+        (1) Repository Interface Scan:
+
+            - Spring scans interfaces that extend JpaRepository, CrudRepository, etc., during startup.
+
+        (2) Proxy Creation:
+
+            - For each repository interface, Spring generates a dynamic proxy class using JDK proxies or CGLIB.
+
+        (3) Query Derivation:
+
+            - Spring parses method names (e.g., findByEmail) and automatically generates the appropriate JPQL or SQL query.
+
+        (4) Delegation to EntityManager:
+
+            - These dynamic implementations use the underlying EntityManager to interact with the database.
+
+        (5) Execution:
+
+            - When a repository method is called, the proxy translates it into a query, executes it via EntityManager, 
+              and maps the result back to entity objects.
+
+________________________________________________________________________________________________________________________
+
+*   How do you execute native SQL queries using Spring Data JPA ?
+
+>>  In Spring Data JPA, you can execute native SQL queries by using the @Query annotation with the nativeQuery 
+    attribute set to true.
+
+    Example:
+
+        - ?1 is a positional parameter (first argument to the method).
+
+        - 'nativeQuery = true' tells Spring Data to treat the query as SQL (not JPQL).
+
+        ```
+            public interface UserRepository extends JpaRepository<User, Long> {
+
+                @Query(value = "SELECT * FROM users WHERE email = ?1", nativeQuery = true)
+                User findByEmailNative(String email);
+            }   
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of the @Query annotation ?
+
+>>  The @Query annotation in Spring Data JPA is used to define custom JPQL or SQL queries directly on repository methods, 
+    allowing greater flexibility than derived query methods.
+
+    (1) Define Custom JPQL Queries:
+
+        - It allows complex queries which might not possible via method names.
+
+        ```
+            @Query("SELECT u FROM User u WHERE u.email = ?1")
+            User findByEmail(String email);
+        ```
+
+    (2) Run Native SQL Queries:
+
+        - Use native SQL by setting nativeQuery = true.
+
+            ```
+                @Query(value = "SELECT * FROM users WHERE email = ?1", nativeQuery = true)
+                User findByEmailNative(String email);
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What are various ways to define a primary key in an entity ?
+
+>>  In JPA, a primary key is defined using the @Id annotation. There are several strategies to define and generate primary 
+    keys in an entity.
+
+    (1) Using @Id with @GeneratedValue:
+
+        - Automatically generates the primary key using a strategy.
+
+            ```
+                @Entity
+                public class User {
+
+                    @Id
+                    @GeneratedValue(strategy = GenerationType.AUTO)
+                    private Long id;
+                }
+            ```
+
+    (2) Using @Id with Manual Assignment:
+
+        - You can manually set the ID without @GeneratedValue.
+
+            ```
+                @Entity
+                public class Product {
+
+                    @Id
+                    private String id;  
+                }
+            ```
+
+    (3) Using Composite Keys with @EmbeddedId:
+
+        - For primary keys made of multiple fields (composite key).
+
+            ```
+                @Embeddable
+                public class OrderId implements Serializable {
+                    private Long userId;
+                    private Long productId;
+                }
+            ```
+
+            ```
+                @Entity
+                public class Order {
+                    @EmbeddedId
+                    private OrderId id;
+                }
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What are various primary key generation type ?
+
+>>  In JPA, you can use the @GeneratedValue annotation along with the strategy attribute to specify how the primary key 
+    should be generated.
+
+    (1) GenerationType.AUTO:
+
+        - Delegates the choice of generation strategy to the JPA provider (like Hibernate).
+
+        - The provider inspects the underlying database and picks an appropriate strategy:
+
+            (a) SEQUENCE for PostgreSQL, Oracle
+
+            (b) IDENTITY for MySQL
+
+            (c) TABLE if neither of the above is available
+
+            ```
+                @GeneratedValue(strategy = GenerationType.AUTO)
+            ```
+
+    (2) GenerationType.IDENTITY:
+
+        - The database auto-generates the primary key (usually with AUTO_INCREMENT).
+
+        - The entity is inserted without an ID, and the database assigns one.
+
+        - JPA gets the generated ID after the insert.
+
+            ```
+                @GeneratedValue(strategy = GenerationType.IDENTITY)
+            ```
+
+    (3) GenerationType.SEQUENCE:
+
+        - Uses a database sequence object to get the next ID value before inserting.
+
+        - Hibernate retrieves the next value by running:
+
+            ```
+                SELECT nextval('user_seq');
+            ```
+        
+        - Requires @SequenceGenerator to define the sequence.
+
+            ```
+                @SequenceGenerator(name = "seq_gen", sequenceName = "user_seq", allocationSize = 1)
+                @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
+            ```
+
+    (4) GenerationType.TABLE:
+
+        - Uses a dedicated table to simulate sequence behavior.
+
+        - You need to explicitly create the ID generation table (e.g. id_gen) and prepopulate it with initial values for each entity.
+
+        - It works across all databases but is least efficient.
+
+            ```
+                @TableGenerator(name = "table_gen", table = "id_gen", pkColumnName = "gen_name", valueColumnName = "gen_val")
+                @GeneratedValue(strategy = GenerationType.TABLE, generator = "table_gen")
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the role of the @Transactional annotation in JPA ?
+
+>>  The @Transactional annotation in Spring is used to manage transactions declaratively, ensuring that a group of 
+    operations either complete successfully as a unit or are rolled back in case of an error.
+
+    It ensures atomicity where all operations inside a method run in a single transaction.
+
+    Example:
+
+        - If any exception occurs here, both inserts are rolled back.
+
+        ```
+            @Service
+            public class UserService {
+
+                @Transactional
+                public void register(User user) {
+                    userRepository.save(user);         
+                    addressRepository.save(user.getAddress()); 
+                }
+            }
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is projections in Spring Data JPA ?
+
+>>  Projections in Spring Data JPA allow you to fetch a subset of entity attributes, instead of the entire entity, to 
+    optimize performance and reduce memory usage.
+
+    Types of Projections:
+        
+        (1) Interface-based Projection:
+
+            - Define an interface with getters for the fields you want to fetch.
+
+            - Spring auto-generates the implementation behind the scenes.
+
+                ```
+                    public interface UserNameOnly {
+                        String getName();
+                    }
+                ```
+
+                ```
+                    List<UserNameOnly> findByAge(int age);
+                ```
+
+        (2) Class-based (DTO) Projection:
+
+            - Define a constructor in a DTO class and map query results to it.
+
+                ```
+                    public class UserDTO {
+                        private String name;
+                        private int age;
+
+                        public UserDTO(String name, int age) {
+                            this.name = name;
+                            this.age = age;
+                        }
+                    }
+                ```
+
+                ```
+                    @Query("SELECT new com.example.UserDTO(u.name, u.age) FROM User u")
+                    List<UserDTO> fetchUsers();
+                ```
+
+        (3) Dynamic Projections
+            
+            - Return type is determined at runtime by passing the class type as a parameter.
+
+                ```
+                    <T> List<T> findByAge(int age, Class<T> type);
+                ```
+
+                ```
+                    userRepository.findByAge(25, UserNameOnly.class);
+                ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between interface-based and class-based projections ?
+
+>>  (1) Interface-based Projections:
+        
+        - Defined as an interface with getter methods.
+
+        - Spring automatically generates a proxy implementation for the interface.
+
+        - Simply declare the method returning the interface; no need to define the implementation.
+
+    (2) Class-based Projections (DTO):
+
+        - Defined as a regular POJO with constructors and setters/getters.
+
+        - Requires explicit creation of the class and its constructor.
+
+        - Needs @Query annotation with new keyword to specify how to populate the DTO.
+
+________________________________________________________________________________________________________________________
+
+*   What is the difference between save(), saveAndFlush(), and flush() in JPA ?
+
+>>  (1) save(entity):	
+
+        - Persists or updates an entity where changes are flushed to DB at transaction commit, not immediately.	
+    
+    (2) saveAndFlush(entity):	
+    
+        - Persists or updates an entity and immediately flushes changes to the database.	
+    
+    (4) flush():
+    	
+        - Synchronizes the persistence context to the database without saving a new entity.
+
+________________________________________________________________________________________________________________________

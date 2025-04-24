@@ -3,27 +3,27 @@
 >>  Spring 'org.springframework.context.annotation' package provides several annotations for configuring and managing 
     the Spring ApplicationContext:
 
-        (1) Configuration
-        (2) ComponentScan
-        (3) ComponentScans
-        (4) Bean
-        (5) DependsOn
-        (6) Scope
-        (7) Lazy 
-        (8) Role
-        (9) Primary
-        (10) Profile
-        (11) Conditional
-        (12) Description
-        (13) PropertySource
-        (14) PropertySources
-        (15) ImportResource
-        (16) ImportRuntimeHints
-        (17) ReflectiveScan
-        (18) Fallback
-        (19) EnableMBeanExport
-        (20) EnableLoadTimeWeaving
-        (21) EnableAspectJAutoProxy
+        (1) @Configuration
+        (2) @ComponentScan
+        (3) @ComponentScans
+        (4) @Bean
+        (5) @DependsOn
+        (6) @Scope
+        (7) @Lazy 
+        (8) @Role
+        (9) @Primary
+        (10) @Profile
+        (11) @Conditional
+        (12) @Description
+        (13) @PropertySource
+        (14) @PropertySources
+        (15) @ImportResource
+        (16) @ImportRuntimeHints
+        (17) @ReflectiveScan
+        (18) @Fallback
+        (19) @EnableMBeanExport
+        (20) @EnableLoadTimeWeaving
+        (21) @EnableAspectJAutoProxy
 
 ________________________________________________________________________________________________________________________
 
