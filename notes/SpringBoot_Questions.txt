@@ -921,6 +921,71 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   How to prevent circular bean dependencies in Spring ?
+
+>>  A circular dependency occurs when two or more beans depend on each other, directly or indirectly, forming a cycle.
+
+    Example:
+
+        ``` 
+            @Component
+            class A {
+
+                @Autowired
+                private B b;
+            }
+
+            @Component
+            class B {
+
+                @Autowired
+                private A a;
+            }
+        ```
+
+    (1) Use @Lazy Injection:
+
+        - Use @Lazy to defer bean initialization until it's actually needed.
+
+        Example:
+
+            ```
+                @Component
+                class A {
+
+                    @Autowired
+                    private B b;
+                }
+
+                @Component
+                class B {
+
+                    @Lazy
+                    @Autowired
+                    private A a;
+                }
+            ```
+
+    (2) Use Setter Injection instead of Constructor Injection:
+        
+        - Setter injection can avoid immediate circular creation because Spring can instantiate the beans first 
+          and then set the dependencies.
+
+        Example:
+        
+            ```
+                @Component
+                class A {
+                    private B b;
+
+                    @Autowired
+                    public void setB(B b) {
+                        this.b = b;
+                    }
+                }
+            ```
+________________________________________________________________________________________________________________________
+
 
 
 
