@@ -147,6 +147,26 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What are the differences between POST, PUT, DELETE and UPDATE if POST method alone could be used to create, delete, update 
+    and partial update ?
+
+>>  (1) Misuse breaks REST principles:
+
+        - REST relies on semantics of HTTP methods for routing, caching, logging, etc.
+
+    (2) Hard to maintain:
+
+        - Future developers (or even you later) can’t easily guess what POST /users/123 means — create? update? delete?
+
+    (3) No idempotency:
+
+        - PUT, PATCH, DELETE are expected to be idempotent (Multiple tries result the same); POST is not because each POST 
+          request is expected to create new record.
+
+        - This causes issues in retries, distributed systems, and API consumers.
+
+________________________________________________________________________________________________________________________
+
 *   What is the difference between RequestMethod, @RequestHeader, @RequestParam, @PathVariable, and @RequestBody ?
 
 >>  (1) RequestMethod:
