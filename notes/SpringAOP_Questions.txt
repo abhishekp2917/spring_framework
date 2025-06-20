@@ -273,3 +273,56 @@ ________________________________________________________________________________
     - However, CGLIB proxies are more powerful because they can proxy classes without requiring an interface.
 
 ________________________________________________________________________________________________________________________
+
+*   How to apply Aspect Advice on a method annotated with a specific annotation ?
+
+>>  (1) Create a Custom Annotation:
+
+        ```    
+            @Retention(RetentionPolicy.RUNTIME)
+            @Target(ElementType.METHOD)
+            public @interface LogExecution {
+            }
+        ```
+    
+    (2) Annotate Your Target Method:
+
+        ```
+            public class MyService {
+
+                @LogExecution
+                public void doSomethingImportant() {
+                    System.out.println("Doing important work...");
+                }
+            }
+        ```
+
+    (3) Create an Aspect to apply Advice on that Annotation:
+
+        - @annotation(...) is the Spring AOP syntax to match methods annotated with a specific annotation.
+
+        ```
+            @Aspect
+            @Component
+            public class LoggingAspect {
+
+                // Apply advice on any method annotated with @LogExecution
+                @Before("@annotation(com.example.annotations.LogExecution)")
+                public void beforeAnnotatedMethod(JoinPoint joinPoint) {
+                    System.out.println("Before method: " + joinPoint.getSignature().getName());
+                }
+            }
+        ```
+    
+    (4) Enable AOP by annotating your configuration class:
+
+        - If you're using Spring Boot, it's already enabled via @SpringBootApplication.
+
+        ```
+            @EnableAspectJAutoProxy
+            @Configuration
+            public class AppConfig {
+            }
+        ```
+
+________________________________________________________________________________________________________________________
